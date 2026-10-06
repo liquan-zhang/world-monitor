@@ -1,6 +1,6 @@
 # 世界经济监控台
 
-以中美两极为主轴、按更新频率分面板的世界经济看板。网页：https://zhangliquan01.github.io/world-monitor/
+以中美两极为主轴、按更新频率分面板的世界经济看板。网页：https://liquan-zhang.github.io/world-monitor/
 
 - `pipeline/`：每天抓数（FRED、Yahoo Finance、AKShare、IMF PortWatch），计算涨跌与十年分位，写 `docs/data/latest.json`
 - `page/`：网页源码，改版式后运行 `python page/build.py` 生成 `docs/index.html`

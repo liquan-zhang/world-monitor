@@ -68,7 +68,7 @@ s = s.replace('<div class="pane" id="p-weekly" role="tabpanel" aria-labelledby="
 s = s.replace('<div class="pane" id="p-monthly" role="tabpanel" aria-labelledby="t-monthly" hidden>', '<div class="pane" id="p-monthly" role="tabpanel" aria-labelledby="t-monthly" hidden>\n    <div class="banner">本面板仍为示例数据，第 4 阶段接入。</div>')
 s = s.replace('<div class="pane" id="p-news" role="tabpanel" aria-labelledby="t-news" hidden>', '<div class="pane" id="p-news" role="tabpanel" aria-labelledby="t-news" hidden>\n    <div class="banner">本面板仍为示例新闻，第 6 阶段接入。</div>')
 s = s.replace('<h2>经济周期：中美两国在哪一格</h2>', '<h2>经济周期：中美两国在哪一格 <span class="mock">示例 · 第 4 阶段接入</span></h2>')
-s = s.replace('本页所有数字和新闻条目均为模拟生成，用于展示看板的理想形态，不代表真实市场或真实事件。', '标「真实」的数字来自 FRED、Yahoo Finance、AKShare、IMF PortWatch，每天自动更新；标「示例」的数字和全部新闻条目仍为模拟，会分阶段替换。代码：github.com/zhangliquan01/world-monitor')
+s = s.replace('本页所有数字和新闻条目均为模拟生成，用于展示看板的理想形态，不代表真实市场或真实事件。', '标「真实」的数字来自 FRED、Yahoo Finance、AKShare、IMF PortWatch，每天自动更新；标「示例」的数字和全部新闻条目仍为模拟，会分阶段替换。代码：github.com/liquan-zhang/world-monitor')
 # 启动：先取数据再渲染
 s = s.replace("renderAll();show(start);", "show(start);fetch(\"data/latest.json\",{cache:\"no-store\"}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(D=>{applyLive(D);renderAll();}).catch(e=>{document.getElementById(\"livebadge\").textContent=\"真实数据加载失败 · 显示示例\";renderAll();});")
 s = s.replace("// 标签页", LIVE + "\n// 标签页", 1)
