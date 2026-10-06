@@ -41,3 +41,15 @@ DAILY = {
 
 CHOKEPOINTS = {"Strait of Hormuz": "霍尔木兹", "Bab el-Mandeb Strait": "曼德", "Suez Canal": "苏伊士", "Malacca Strait": "马六甲",
                "Panama Canal": "巴拿马", "Cape of Good Hope": "好望角", "Bosporus Strait": "土耳其海峡", "Taiwan Strait": "台湾海峡"}
+
+from sources import yahoo_curve, cn_curve
+# 期限结构。cmp：用第几个合约和近月比较（季节性品种比 12 个月后）；carry：远月贵属正常（黄金）
+CURVES = {
+    "brent": dict(fn=lambda: yahoo_curve("BZ", "NYM"), cmp=5),
+    "wti":   dict(fn=lambda: yahoo_curve("CL", "NYM"), cmp=5),
+    "hh":    dict(fn=lambda: yahoo_curve("NG", "NYM"), cmp=12, note="天然气有季节性，比较近月与 12 个月后的同月合约"),
+    "cu":    dict(fn=lambda: yahoo_curve("HG", "CMX", scale=LB_PER_T), cmp=5),
+    "au":    dict(fn=lambda: yahoo_curve("GC", "CMX"), cmp=5, carry=True, note="远月贵是持有成本，属正常"),
+    "fe":    dict(fn=lambda: cn_curve("I"), cmp=5),
+    "li":    dict(fn=lambda: cn_curve("LC"), cmp=5),
+}

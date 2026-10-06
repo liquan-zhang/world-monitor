@@ -15,6 +15,8 @@ function liveTag(real,date,note){return real?`<span class="live" title="${note||
 function applyLive(D){LIVE=D;let n=0;
  MK.forEach(m=>{const id=IDMAP[m[1]];const x=id&&D.daily[id];if(!x)return;m[3]=x.last;m.s=x.spark;m.w=x.chg1w;m.pct=x.pct10y;m.real=true;m.date=x.date;m.note=x.note+(x.pct_years<9.5?`（分位按 ${x.pct_years} 年）`:"");m.kind=x.kind;n++;});
  C.forEach(c=>{const x=D.daily[c.id];if(!x)return;c.end=x.last;c.s=x.spark;c.d1=x.chg1d;c.w1=x.chg1w;c.m1=x.chg1m;c.y1=x.chg1y??c.y1;c.u=x.unit;c.real=true;c.date=x.date;c.note=x.note;n++;});
+ const CMAP={"近月升水":"升水","远月升水":"贴水","平坦":"平坦","正常":"正常"};
+ C.forEach(c=>{const k=(D.curves||{})[c.id];if(!k)return;c.cv=k.points.map(p=>p[1]);c.curve=CMAP[k.label]||k.label;c.curveReal=true;c.curveInfo=`近月 ${k.points[0][0]} 比 ${k.vs} ${k.spread_pct>0?"贵":"便宜"} ${Math.abs(k.spread_pct).toFixed(1)}%${k.chg4w!=null?`，4 周${k.chg4w>0?"走阔":"收窄"} ${Math.abs(k.chg4w).toFixed(1)} 个百分点`:""}${k.note?"（"+k.note+"）":""}`;n++;});
  CK.forEach(c=>{const x=D.chokepoints[c[0]];if(x&&x.dev!=null){c[3]=x.dev;c.real=true;c.date=x.date;n++;}});
  if(D.spreads.brent_wti){SP[0][1]=D.spreads.brent_wti.value.toFixed(2)+" $/桶";SP[0][2]="";SP[0].real=true}
  if(D.spreads.ttf_hh){SP[1][1]=D.spreads.ttf_hh.value.toFixed(2)+" $/MMBtu";SP[1][2]="";SP[1].real=true}
@@ -61,6 +63,10 @@ s = s.replace('分位为示例数据。真实版按过去十年的日度或月�
 s = s.replace('<td class="name">${c.name}<small>${c.u} · ${c.g}</small></td>', '<td class="name">${c.name}${liveTag(c.real,c.date||"",c.note)}<small>${c.u} · ${c.g}</small></td>')
 s = s.replace('点击表头排序，点击任一行打开详情。红涨绿跌。持仓和库存是周度数据，在「周频」面板。', '点击表头排序，点击任一行打开详情。红涨绿跌。期限结构一列仍是示例，第 2 阶段接入；持仓和库存是周度数据，在「周频」面板。')
 s = s.replace('数据截至 <b class="num">2026-10-05 收盘</b></span><span>下次更新 <b class="num">10-07 07:00</b>', '数据截至 <b class="num" id="dailyAsOf">—</b></span><span>更新时间 <b class="num" id="dailyNext">—</b>')
+s = s.replace('<td>${curvePill(c.curve)}</td>', '<td title="${c.curveInfo||""}">${curvePill(c.curve)}${c.curveReal?"":"<span class=\\"mock\\">示例</span>"}</td>')
+s = s.replace('期限结构一列仍是示例，第 2 阶段接入；', '期限结构：近月合约对第 6 个月合约（天然气对 12 个月后），差价超过 1.5% 判为升水；鼠标悬停看具体价差。')
+s = s.replace('<div class="fact"><span class="k">期限结构 M1→M12</span>${curveSvg(c.cv)}</div>', '<div class="fact"><span class="k">期限结构 M1→M12${c.curveReal?"":" · 示例"}</span>${curveSvg(c.cv)}</div>')
+s = s.replace('c.curve==="升水"?"近月升水：现货偏紧":c.curve==="贴水"?"远月升水：供应宽松":c.curve}</div>', 'c.curve==="升水"?"近月升水：现货偏紧":c.curve==="贴水"?"远月升水：供应宽松":c.curve}</div>${c.curveInfo?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${c.curveInfo}</div>`:""}')
 # 咽喉
 s = s.replace('<div class="note">每日通行船数 vs 30 日均值</div>', '<div class="note" id="cknote">最近 7 天日均通行船数 vs 之前 30 天日均（IMF PortWatch，约滞后一周）</div>')
 # 非日频面板横幅

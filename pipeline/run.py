@@ -1,11 +1,12 @@
 """每日任务：抓取 → 计算 → 写 docs/data/latest.json。单个指标失败只记录，不中断。"""
 import json, sys, os, datetime as dt, traceback
 sys.path.insert(0, os.path.dirname(__file__))
-from catalog import DAILY, CHOKEPOINTS
+from catalog import DAILY, CHOKEPOINTS, CURVES
 from sources import portwatch
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "docs", "data", "latest.json")
+CURVE_HIST = os.path.join(ROOT, "docs", "data", "curve_history.json")
 SPARK_N = 260
 
 
@@ -99,6 +100,34 @@ def main():
         print("ok   chokepoints", {k: v["dev"] for k, v in out["chokepoints"].items()})
     except Exception as e:
         out["errors"].append(f"portwatch: {e}")
+
+    # 期限结构：近月 vs 第 cmp 个合约，价差占近月的百分比；每日存档以判断走阔或收窄
+    out["curves"] = {}
+    hist = json.load(open(CURVE_HIST)) if os.path.exists(CURVE_HIST) else {}
+    today = dt.date.today().isoformat()
+    for k, spec in CURVES.items():
+        try:
+            pts = spec["fn"]()
+            if len(pts) < 6:
+                raise ValueError(f"only {len(pts)} contracts")
+            i = min(spec["cmp"], len(pts) - 1)
+            m1, mx = pts[0][1], pts[i][1]
+            spread = round((m1 - mx) / m1 * 100, 2)
+            if spec.get("carry"):
+                label = "近月升水" if spread > 0.3 else "正常"
+            else:
+                label = "近月升水" if spread > 1.5 else "远月升水" if spread < -1.5 else "平坦"
+            h = [r for r in hist.get(k, []) if r[0] != today] + [[today, spread]]
+            hist[k] = h[-400:]
+            old = [v for d, v in h if d <= (dt.date.today() - dt.timedelta(days=28)).isoformat()]
+            chg4w = round(spread - old[-1], 2) if old else None
+            out["curves"][k] = dict(points=pts, label=label, spread_pct=spread, vs=pts[i][0], chg4w=chg4w, note=spec.get("note", ""))
+            print(f"ok   curve {k:6s} {label} {spread:+.2f}% ({pts[0][0]} vs {pts[i][0]})")
+        except Exception as e:
+            out["errors"].append(f"curve {k}: {str(e)[:100]}")
+            print(f"FAIL curve {k}: {e}")
+    with open(CURVE_HIST, "w") as f:
+        json.dump(hist, f, separators=(",", ":"))
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:

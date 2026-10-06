@@ -108,3 +108,46 @@ def portwatch(portnames, days=75):
             break
         offset += 2000
     return out
+
+
+MONTHS = "FGHJKMNQUVXZ"
+def yahoo_curve(root, exch, n=13, scale=1.0, start=None):
+    """Yahoo 单月合约曲线，返回 [[YYMM, price], ...]，按到期先后。"""
+    start = start or dt.date.today()
+    out = []
+    for k in range(0, n + 3):
+        mi = (start.month - 1 + k) % 12
+        yy = (start.year + (start.month - 1 + k) // 12) % 100
+        sym = f"{root}{MONTHS[mi]}{yy:02d}.{exch}"
+        try:
+            d = json.loads(_get(f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=5d&interval=1d", H_BROWSER))["chart"]["result"][0]
+            c = [x for x in d["indicators"]["quote"][0]["close"] if x is not None]
+            if c:
+                out.append([f"{yy:02d}{mi + 1:02d}", round(c[-1] * scale, 4)])
+        except Exception:
+            continue
+        if len(out) >= n:
+            break
+    return out
+
+
+def cn_curve(root, n=12, start=None):
+    """国内期货分月合约曲线（AKShare 新浪源），剔除停止交易的合约。"""
+    import akshare as ak
+    start = start or dt.date.today()
+    rows = []
+    for k in range(0, n + 2):
+        y = start.year + (start.month - 1 + k) // 12
+        m = (start.month - 1 + k) % 12 + 1
+        sym = f"{root}{y % 100:02d}{m:02d}"
+        try:
+            df = ak.futures_zh_daily_sina(symbol=sym)
+            if len(df):
+                rows.append([f"{y % 100:02d}{m:02d}", float(df["close"].iloc[-1]), str(df["date"].iloc[-1])[:10]])
+        except Exception:
+            continue
+    if not rows:
+        return []
+    latest = max(r[2] for r in rows)
+    cutoff = (dt.date.fromisoformat(latest) - dt.timedelta(days=10)).isoformat()
+    return [[a, b] for a, b, d in rows if d >= cutoff][:n]

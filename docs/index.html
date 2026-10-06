@@ -246,7 +246,7 @@ button.mtile:focus-visible,button.mt:focus-visible{outline:2px solid var(--accen
       <div class="tablebox"><table id="heat"><thead><tr>
         <th data-k="name">品种</th><th data-k="end">最新</th><th data-k="d1">1日</th><th data-k="w1">1周</th><th data-k="m1">1月</th><th data-k="y1">1年</th><th data-k="curve">期限结构</th><th>走势</th>
       </tr></thead><tbody></tbody></table></div>
-      <div class="note" style="margin-top:8px;color:var(--faint);font-size:12px">点击表头排序，点击任一行打开详情。红涨绿跌。期限结构一列仍是示例，第 2 阶段接入；持仓和库存是周度数据，在「周频」面板。</div>
+      <div class="note" style="margin-top:8px;color:var(--faint);font-size:12px">点击表头排序，点击任一行打开详情。红涨绿跌。期限结构：近月合约对第 6 个月合约（天然气对 12 个月后），差价超过 1.5% 判为升水；鼠标悬停看具体价差。持仓和库存是周度数据，在「周频」面板。</div>
     </section>
     <section class="grid2">
       <div class="panel mapbox">
@@ -474,7 +474,7 @@ function curvePill(c){return c==="升水"?'<span class="pill p-crit">近月升�
 function renderHeat(){let rows=C.filter(c=>FILTER==="all"||c.g===FILTER);
  if(SORT.k){rows=rows.slice().sort((a,b)=>{const x=a[SORT.k],y=b[SORT.k];if(SORT.k==="name"||SORT.k==="curve")return SORT.dir*String(x).localeCompare(String(y),"zh");return SORT.dir*((x??-1e9)-(y??-1e9));});}
  const sc={d1:3,w1:6,m1:12,y1:35};
- document.querySelector("#heat tbody").innerHTML=rows.map(c=>`<tr class="row" tabindex="0" data-id="${c.id}"><td class="name">${c.name}${liveTag(c.real,c.date||"",c.note)}<small>${c.u} · ${c.g}</small></td><td class="heat">${fmt(c.end)}</td>${["d1","w1","m1","y1"].map(k=>`<td class="heat" style="background:${heatColor(c[k],sc[k])}">${pct(c[k])}</td>`).join("")}<td>${curvePill(c.curve)}</td><td class="spark">${spark(c.s.slice(-RANGE),110,24,{r:1.8})}</td></tr>`).join("");
+ document.querySelector("#heat tbody").innerHTML=rows.map(c=>`<tr class="row" tabindex="0" data-id="${c.id}"><td class="name">${c.name}${liveTag(c.real,c.date||"",c.note)}<small>${c.u} · ${c.g}</small></td><td class="heat">${fmt(c.end)}</td>${["d1","w1","m1","y1"].map(k=>`<td class="heat" style="background:${heatColor(c[k],sc[k])}">${pct(c[k])}</td>`).join("")}<td title="${c.curveInfo||""}">${curvePill(c.curve)}${c.curveReal?"":"<span class=\"mock\">示例</span>"}</td><td class="spark">${spark(c.s.slice(-RANGE),110,24,{r:1.8})}</td></tr>`).join("");
  document.querySelectorAll("#heat tr.row").forEach(tr=>{tr.onclick=()=>openD(tr.dataset.id);tr.onkeydown=e=>{if(e.key==="Enter")openD(tr.dataset.id)}});}
 document.querySelectorAll("#heat th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k;SORT.dir=SORT.k===k?-SORT.dir:-1;SORT.k=k;renderHeat();});
 document.querySelectorAll("#filters .chip").forEach(b=>b.onclick=()=>{FILTER=b.dataset.g;document.querySelectorAll("#filters .chip").forEach(x=>x.setAttribute("aria-pressed",x===b));renderHeat();});
@@ -503,7 +503,7 @@ function renderCards(){document.getElementById("cards").innerHTML=C.filter(c=>c.
  <div class="hd"><div><div class="nm">${c.name}</div><div class="unit">${c.u} · 价格截至上周五</div></div><span class="pill ${REGCLS[c.reg]}">${c.reg}</span></div>
  <div style="display:flex;align-items:baseline;gap:10px"><span class="px num">${fmt(c.end)}</span><span class="chg num ${cls(c.w1)}">1周 ${pct(c.w1)}</span><span class="chg num ${cls(c.m1)}">1月 ${pct(c.m1)}</span></div>
  ${spark(c.s.slice(-130),300,64,{cls:"main",grid:true,sw:1.6})}
- <div class="facts"><div class="fact"><span class="k">期限结构 M1→M12</span>${curveSvg(c.cv)}</div>
+ <div class="facts"><div class="fact"><span class="k">期限结构 M1→M12${c.curveReal?"":" · 示例"}</span>${curveSvg(c.cv)}</div>
  <div class="fact"><span class="k">库存 vs 5 年同期</span>${c.inv==null?'<div class="v" style="color:var(--faint)">不适用</div>':`<div class="v num">${c.inv}% 分位</div><div class="gauge"><i style="left:calc(${c.inv}% - 1px)"></i></div>`}</div>
  <div class="fact"><span class="k">投机净多（两年）</span>${gauge(c.cot)}</div></div>
  <div class="read">${c.read}</div></button>`).join("");
@@ -563,7 +563,7 @@ function openD(id){const c=C.find(x=>x.id===id);if(!c)return;lastFocus=document.
  <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:baseline"><span class="num" style="font-size:30px;font-weight:600">${fmt(c.end)}</span>${["d1","w1","m1","y1"].map((k,i)=>`<span class="num ${cls(c[k])}">${["1日","1周","1月","1年"][i]} ${pct(c[k])}</span>`).join("")}${c.reg?`<span class="pill ${REGCLS[c.reg]}">${c.reg}</span>`:""}</div>
  ${spark(s,600,260,{cls:"big",grid:true,sw:1.8,r:3.2})}
  <div class="dgrid"><div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-d">日</span> 区间高 / 低</div><div class="num" style="font-weight:600">${fmt(mx)} / ${fmt(mn)}</div></div>
- <div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-d">日</span> 期限结构</div><div style="font-weight:600">${c.curve==="升水"?"近月升水：现货偏紧":c.curve==="贴水"?"远月升水：供应宽松":c.curve}</div></div>
+ <div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-d">日</span> 期限结构</div><div style="font-weight:600">${c.curve==="升水"?"近月升水：现货偏紧":c.curve==="贴水"?"远月升水：供应宽松":c.curve}</div>${c.curveInfo?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${c.curveInfo}</div>`:""}</div>
  <div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-w">周</span> 投机净多两年分位</div>${gauge(c.cot)}</div>
  <div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-w">周</span> 库存 vs 5 年同期</div><div class="num" style="font-weight:600">${c.inv==null?"—":c.inv+"% 分位"}</div></div></div>
  ${c.read?`<div class="panel" style="font-size:13.5px">${c.read}</div>`:'<div style="color:var(--faint);font-size:13px">非重点品种，只展示价格与持仓。</div>'}
@@ -602,6 +602,8 @@ function liveTag(real,date,note){return real?`<span class="live" title="${note||
 function applyLive(D){LIVE=D;let n=0;
  MK.forEach(m=>{const id=IDMAP[m[1]];const x=id&&D.daily[id];if(!x)return;m[3]=x.last;m.s=x.spark;m.w=x.chg1w;m.pct=x.pct10y;m.real=true;m.date=x.date;m.note=x.note+(x.pct_years<9.5?`（分位按 ${x.pct_years} 年）`:"");m.kind=x.kind;n++;});
  C.forEach(c=>{const x=D.daily[c.id];if(!x)return;c.end=x.last;c.s=x.spark;c.d1=x.chg1d;c.w1=x.chg1w;c.m1=x.chg1m;c.y1=x.chg1y??c.y1;c.u=x.unit;c.real=true;c.date=x.date;c.note=x.note;n++;});
+ const CMAP={"近月升水":"升水","远月升水":"贴水","平坦":"平坦","正常":"正常"};
+ C.forEach(c=>{const k=(D.curves||{})[c.id];if(!k)return;c.cv=k.points.map(p=>p[1]);c.curve=CMAP[k.label]||k.label;c.curveReal=true;c.curveInfo=`近月 ${k.points[0][0]} 比 ${k.vs} ${k.spread_pct>0?"贵":"便宜"} ${Math.abs(k.spread_pct).toFixed(1)}%${k.chg4w!=null?`，4 周${k.chg4w>0?"走阔":"收窄"} ${Math.abs(k.chg4w).toFixed(1)} 个百分点`:""}${k.note?"（"+k.note+"）":""}`;n++;});
  CK.forEach(c=>{const x=D.chokepoints[c[0]];if(x&&x.dev!=null){c[3]=x.dev;c.real=true;c.date=x.date;n++;}});
  if(D.spreads.brent_wti){SP[0][1]=D.spreads.brent_wti.value.toFixed(2)+" $/桶";SP[0][2]="";SP[0].real=true}
  if(D.spreads.ttf_hh){SP[1][1]=D.spreads.ttf_hh.value.toFixed(2)+" $/MMBtu";SP[1][2]="";SP[1].real=true}
