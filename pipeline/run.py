@@ -1,8 +1,8 @@
 """每日任务：抓取 → 计算 → 写 docs/data/latest.json。单个指标失败只记录，不中断。"""
 import json, sys, os, datetime as dt, traceback
 sys.path.insert(0, os.path.dirname(__file__))
-from catalog import DAILY, CHOKEPOINTS, CURVES
-from sources import portwatch
+from catalog import DAILY, CHOKEPOINTS, CURVES, COT, COT_FOR, WARRANTS, WEEKLY_MISC, LOGISTICS
+from sources import portwatch, cftc_net, cn_warrant
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "docs", "data", "latest.json")
@@ -128,6 +128,62 @@ def main():
             print(f"FAIL curve {k}: {e}")
     with open(CURVE_HIST, "w") as f:
         json.dump(hist, f, separators=(",", ":"))
+
+    # ===== 周频 =====
+    W = out["weekly"] = dict(cot={}, warrants={}, misc={}, regimes={})
+    for name, code in COT.items():
+        try:
+            ser = cftc_net(code)
+            win = [v for _, v in ser[-104:]]
+            def pctl(v, arr): return round(100 * sum(1 for x in arr if x < v) / max(len(arr) - 1, 1))
+            p_now, p_prev = pctl(ser[-1][1], win), pctl(ser[-2][1], win[:-1])
+            W["cot"][name] = dict(net=ser[-1][1], date=ser[-1][0], pct2y=p_now, chg=p_now - p_prev)
+        except Exception as e:
+            out["errors"].append(f"cot {name}: {str(e)[:80]}")
+    for k, (sym, label, unit) in WARRANTS.items():
+        try:
+            ser = cn_warrant(sym)
+            vals = [v for _, v in ser]
+            W["warrants"][k] = dict(label=label, unit=unit, last=ser[-1][1], date=ser[-1][0], chg=ser[-1][1] - ser[-2][1],
+                                    pct=round(100 * sum(1 for v in vals if v < vals[-1]) / max(len(vals) - 1, 1)), days=len(vals))
+        except Exception as e:
+            out["errors"].append(f"warrant {k}: {str(e)[:80]}")
+    for k, spec in WEEKLY_MISC.items():
+        try:
+            st = stats(spec["fn"](), "abs", spec["scale"])
+            st.update(label=spec["label"], unit=spec["unit"])
+            st["spark"] = st["spark"][-52:]
+            W["misc"][k] = st
+        except Exception as e:
+            out["errors"].append(f"weekly {k}: {str(e)[:80]}")
+    # 判断规则：真实紧缺 / 资金推动 / 物流冲击 / 需求走弱 / 平稳
+    for k in ["brent", "ttf", "cu", "fe", "li", "au"]:
+        d, cv = out["daily"].get(k), out["curves"].get(k)
+        if not d:
+            continue
+        m1 = d.get("chg1m") or 0
+        cot = W["cot"].get(COT_FOR.get(k, ""), {}).get("pct2y")
+        inv = W["warrants"].get(k, {})
+        ck = out["chokepoints"].get(LOGISTICS.get(k, ""), {}).get("dev")
+        lab = cv["label"] if cv else None
+        spread = cv["spread_pct"] if cv else 0
+        facts = [f"近 1 月价格 {m1:+.1f}%"]
+        if cv: facts.append(f"期限结构{lab}（{cv['points'][0][0]} 对 {cv['vs']}：{spread:+.1f}%）")
+        if cot is not None: facts.append(f"投机净多处在两年 {cot}% 分位")
+        if inv: facts.append(f"{inv['label']}最新一期{'增加' if inv['chg']>0 else '减少'} {abs(inv['chg']):,.0f} {inv['unit']}")
+        if ck is not None: facts.append(f"{LOGISTICS[k]}通行量 {ck:+d}%")
+        if ck is not None and ck <= -15 and m1 > 0 and (k == "ttf" or spread <= 3):
+            reg, why = "物流冲击", "价格上涨与咽喉通行量下降同时出现，问题主要在通道而非供给总量。"
+        elif m1 > 0 and lab == "近月升水" and spread > 3:
+            reg, why = "真实紧缺", "近月明显贵于远月，说明现货偏紧，价格上涨有实物需求支撑。"
+        elif m1 > 0 and cot is not None and cot >= 85 and lab in ("平坦", "远月升水", "正常"):
+            reg, why = "资金推动", "价格上涨但期限结构不紧，投机持仓拥挤，上涨主要来自资金，回撤风险偏大。"
+        elif m1 < 0 and lab in ("远月升水", "平坦") and (not inv or inv["chg"] > 0):
+            reg, why = "需求走弱", "价格下跌、远月不低于近月，库存没有收紧，反映需求偏弱。"
+        else:
+            reg, why = "平稳", "各项信号没有形成一致方向。"
+        W["regimes"][k] = dict(label=reg, read="；".join(facts) + "。" + why, cot=cot)
+    print("ok   weekly", {k: v["label"] for k, v in W["regimes"].items()}, "cot", len(W["cot"]))
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:

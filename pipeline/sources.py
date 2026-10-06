@@ -151,3 +151,18 @@ def cn_curve(root, n=12, start=None):
     latest = max(r[2] for r in rows)
     cutoff = (dt.date.fromisoformat(latest) - dt.timedelta(days=10)).isoformat()
     return [[a, b] for a, b, d in rows if d >= cutoff][:n]
+
+
+CFTC = "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"
+def cftc_net(code, weeks=110):
+    """CFTC 分类持仓报告：管理基金净多头。返回 [[date, net], ...] 升序。"""
+    txt = _get(CFTC, params={"cftc_contract_market_code": code, "$order": "report_date_as_yyyy_mm_dd DESC", "$limit": weeks,
+                              "$select": "report_date_as_yyyy_mm_dd,m_money_positions_long_all,m_money_positions_short_all"})
+    rows = [[r["report_date_as_yyyy_mm_dd"][:10], float(r["m_money_positions_long_all"]) - float(r["m_money_positions_short_all"])] for r in json.loads(txt)]
+    return sorted(rows)
+
+
+def cn_warrant(symbol):
+    """国内交易所注册仓单（东方财富），历史较短。"""
+    import akshare as ak
+    return _df_series(ak.futures_inventory_em(symbol=symbol), "日期", "库存")

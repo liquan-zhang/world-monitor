@@ -20,13 +20,24 @@ function applyLive(D){LIVE=D;let n=0;
  CK.forEach(c=>{const x=D.chokepoints[c[0]];if(x&&x.dev!=null){c[3]=x.dev;c.real=true;c.date=x.date;n++;}});
  if(D.spreads.brent_wti){SP[0][1]=D.spreads.brent_wti.value.toFixed(2)+" $/桶";SP[0][2]="";SP[0].real=true}
  if(D.spreads.ttf_hh){SP[1][1]=D.spreads.ttf_hh.value.toFixed(2)+" $/MMBtu";SP[1][2]="";SP[1].real=true}
+ const Wk=D.weekly;
+ if(Wk){
+  if(Object.keys(Wk.cot).length){COT.length=0;Object.entries(Wk.cot).forEach(([k,v])=>COT.push([k+(k==="原油"?" WTI":""),v.pct2y,v.chg]));n+=COT.length;}
+  const wr=Object.values(Wk.warrants);for(let i=wr.length-1;i>=0;i--){const w=wr[i];INV.unshift([w.label+`（近 ${w.days} 个交易日）`,w.last.toLocaleString("en-US")+" "+w.unit,(w.chg>0?"+":"−")+Math.abs(w.chg).toLocaleString("en-US"),w.pct,w.date]);n++;}
+  const WMAP={"美国初请失业金":"icsa","美联储资产负债表":"walcl","芝加哥联储金融条件指数":"nfci"};
+  WM.forEach(m=>{const x=Wk.misc[WMAP[m[0]]];if(!x)return;const dg=x.unit==="万人"?1:x.unit==="万亿美元"?2:2;m[1]=x.last.toFixed(dg).replace("-","−");m[3]=x.prev!=null?x.prev.toFixed(dg).replace("-","−"):"—";m[5]="截至 "+x.date.slice(5);m.spark=x.spark;m.pct=x.pct10y;m.real=true;m.date=x.date;n++;});
+  C.forEach(c=>{const r=Wk.regimes[c.id];if(!r)return;c.reg=r.label;c.read=r.read;c.cot=r.cot??null;c.inv=Wk.warrants[c.id]?Wk.warrants[c.id].pct:null;c.invLabel=Wk.warrants[c.id]?"仓单近 3 月分位":null;c.regReal=true;});
+  const cd=Object.values(Wk.cot)[0];const el2=document.getElementById("weeklyAsOf");if(el2&&cd)el2.textContent=cd.date;
+ }
  // 规则版要点：只用真实数据生成
  const ck=Object.entries(D.chokepoints).sort((a,b)=>a[1].dev-b[1].dev)[0];
  const mov=C.filter(c=>c.real).sort((a,b)=>Math.abs(b.w1)-Math.abs(a.w1))[0];
  const ry=D.daily.us_real10y,vx=D.daily.us_vix,sp=D.daily.x_cnus10y;
  V.length=0;
  if(ck)V.push([ck[1].dev<=-15?"crit":"ok","d",`${ck[0]}通行量 ${ck[1].dev>0?"+":""}${ck[1].dev}%`,`最近 7 天日均 ${ck[1].last7} 艘，之前 30 天日均 ${ck[1].base30} 艘。`,`PortWatch 截至 ${ck[1].date.slice(5)}`]);
- if(mov)V.push([mov.w1>0?"warn":"ok","d",`${mov.name} 1 周 ${pct(mov.w1)}`,`本周波动最大的品种，最新 ${fmt(mov.end)} ${mov.u}。`,`截至 ${mov.date.slice(5)}`]);
+ const rg=D.weekly&&Object.entries(D.weekly.regimes).find(([k,v])=>v.label!=="平稳");
+ if(rg){const cc=C.find(c=>c.id===rg[0]);V.push([{"真实紧缺":"crit","资金推动":"warn","物流冲击":"crit","需求走弱":"ok"}[rg[1].label]||"ok","w",`${cc?cc.name:rg[0]}：${rg[1].label}`,rg[1].read.split("。")[0]+"。",`CFTC 截至 ${Object.values(D.weekly.cot)[0].date.slice(5)}`]);}
+ else if(mov)V.push([mov.w1>0?"warn":"ok","d",`${mov.name} 1 周 ${pct(mov.w1)}`,`本周波动最大的品种，最新 ${fmt(mov.end)} ${mov.u}。`,`截至 ${mov.date.slice(5)}`]);
  if(ry)V.push([ry.pct10y>=80?"crit":"ok","d",`美国 10Y 实际利率 ${ry.last.toFixed(2)}%`,`处在过去十年 ${ry.pct10y}% 分位（${bandOf(ry.pct10y)}），全球融资成本偏${ry.pct10y>=60?"紧":"松"}。`,`FRED 截至 ${ry.date.slice(5)}`]);
  if(sp)V.push([sp.pct10y<=20?"warn":"ok","d",`中美 10Y 利差 ${Math.round(sp.last)} bp`,`处在过去十年 ${sp.pct10y}% 分位，人民币资产相对收益${sp.pct10y<=20?"处于低位":"一般"}。`,`截至 ${sp.date.slice(5)}`]);
  document.getElementById("verdict").innerHTML=V.map(v=>`<div class="sig"><div class="bar" style="background:var(${VC[v[0]]})"></div><div><h3><span class="cad ${CADN[v[1]][1]}">${CADN[v[1]][0]}</span>${v[2]}</h3><p>${v[3]}</p><p class="num" style="font-size:11px;color:var(--faint);margin-top:2px">${v[4]} · 规则自动生成</p></div></div>`).join("");
@@ -43,6 +54,21 @@ css_add = """
 </style>"""
 
 s = head + body
+_lines = []
+for ln in s.split("\n"):
+    for pre, fn in [('document.getElementById("cot").innerHTML=', "renderCot"), ('document.getElementById("inv").innerHTML=', "renderInv"), ('document.getElementById("weeklyMisc").innerHTML=', "renderWM")]:
+        if ln.startswith(pre):
+            ln = f"function {fn}(){{" + ln + ("bindInfo(document.getElementById(\"weeklyMisc\"));" if fn == "renderWM" else "") + "}"
+    if ln.startswith('bindInfo(document.getElementById("weeklyMisc"));'):
+        ln = ""
+    _lines.append(ln)
+s = "\n".join(_lines)
+s = s.replace("function renderAll(){renderQuad();", "function renderAll(){renderCot();renderInv();renderWM();renderQuad();")
+# 周频小卡片支持真实数据
+s = s.replace('const s=mseries(v,pv,26,m[6]);', 'const s=m.spark||mseries(v,pv,26,m[6]);')
+s = s.replace('${prow((INFO["周·"+m[0]]||[])[0])}', '${prow(m.pct??(m.real?null:(INFO["周·"+m[0]]||[])[0]))}')
+s = s.replace('data-cad="周"><span class="hint">?</span><div class="k">${m[0]}</div>', 'data-cad="周" data-pct="${m.pct??""}"><span class="hint">?</span><div class="k">${m[0]}${liveTag(m.real,m.date||"","")}</div>')
+s = s.replace('<tr><td style="text-align:left">${r[0]}</td><td class="num">${r[1]}</td>', '<tr><td style="text-align:left">${r[0]}${r[4]?liveTag(true,r[4],""):\'<span class="mock">示例</span>\'}</td><td class="num">${r[1]}</td>')
 s = s.replace("</style>", css_add, 1)
 s = s.replace("__LAND__", land)
 # 标签与徽章
@@ -67,10 +93,12 @@ s = s.replace('<td>${curvePill(c.curve)}</td>', '<td title="${c.curveInfo||""}">
 s = s.replace('期限结构一列仍是示例，第 2 阶段接入；', '期限结构：近月合约对第 6 个月合约（天然气对 12 个月后），差价超过 1.5% 判为升水；鼠标悬停看具体价差。')
 s = s.replace('<div class="fact"><span class="k">期限结构 M1→M12</span>${curveSvg(c.cv)}</div>', '<div class="fact"><span class="k">期限结构 M1→M12${c.curveReal?"":" · 示例"}</span>${curveSvg(c.cv)}</div>')
 s = s.replace('c.curve==="升水"?"近月升水：现货偏紧":c.curve==="贴水"?"远月升水：供应宽松":c.curve}</div>', 'c.curve==="升水"?"近月升水：现货偏紧":c.curve==="贴水"?"远月升水：供应宽松":c.curve}</div>${c.curveInfo?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${c.curveInfo}</div>`:""}')
+s = s.replace('<div class="fact"><span class="k">库存 vs 5 年同期</span>', '<div class="fact"><span class="k">${c.invLabel||"库存 vs 5 年同期"}</span>')
 # 咽喉
 s = s.replace('<div class="note">每日通行船数 vs 30 日均值</div>', '<div class="note" id="cknote">最近 7 天日均通行船数 vs 之前 30 天日均（IMF PortWatch，约滞后一周）</div>')
 # 非日频面板横幅
-s = s.replace('<div class="pane" id="p-weekly" role="tabpanel" aria-labelledby="t-weekly" hidden>', '<div class="pane" id="p-weekly" role="tabpanel" aria-labelledby="t-weekly" hidden>\n    <div class="banner">本面板仍为示例数据，第 3 阶段接入 EIA、CFTC 与美联储周度数据。</div>')
+s = s.replace('<div class="pane" id="p-weekly" role="tabpanel" aria-labelledby="t-weekly" hidden>', '<div class="pane" id="p-weekly" role="tabpanel" aria-labelledby="t-weekly" hidden>\n    <div class="banner">CFTC 持仓、交易所仓单、美联储周度数据和品种判断已接入真实数据；EIA 原油库存、欧洲天然气库存、SCFI 运价、中国港口铁矿库存仍为示例（前两项需要注册免费 key，后两项为付费数据）。</div>')
+s = s.replace('本周判断基于 <b class="num">2026-10-03</b> 前数据', '持仓数据截至 <b class="num" id="weeklyAsOf">—</b>')
 s = s.replace('<div class="pane" id="p-monthly" role="tabpanel" aria-labelledby="t-monthly" hidden>', '<div class="pane" id="p-monthly" role="tabpanel" aria-labelledby="t-monthly" hidden>\n    <div class="banner">本面板仍为示例数据，第 4 阶段接入。</div>')
 s = s.replace('<div class="pane" id="p-news" role="tabpanel" aria-labelledby="t-news" hidden>', '<div class="pane" id="p-news" role="tabpanel" aria-labelledby="t-news" hidden>\n    <div class="banner">本面板仍为示例新闻，第 6 阶段接入。</div>')
 s = s.replace('<h2>经济周期：中美两国在哪一格</h2>', '<h2>经济周期：中美两国在哪一格 <span class="mock">示例 · 第 4 阶段接入</span></h2>')

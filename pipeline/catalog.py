@@ -53,3 +53,16 @@ CURVES = {
     "fe":    dict(fn=lambda: cn_curve("I"), cmp=5),
     "li":    dict(fn=lambda: cn_curve("LC"), cmp=5),
 }
+
+from sources import cftc_net, cn_warrant
+# 周频
+COT = {"原油": "067651", "天然气": "023651", "铜": "085692", "黄金": "088691", "白银": "084691", "大豆": "005602", "小麦": "001602", "玉米": "002602"}
+COT_FOR = {"brent": "原油", "wti": "原油", "hh": "天然气", "cu": "铜", "au": "黄金", "ag": "白银", "soy": "大豆", "wheat": "小麦"}
+WARRANTS = {"cu": ("沪铜", "上期所铜注册仓单", "吨"), "li": ("碳酸锂", "广期所碳酸锂注册仓单", "吨")}
+WEEKLY_MISC = {
+    "icsa":  dict(fn=lambda: fred("ICSA"), label="美国初请失业金", unit="万人", scale=1e-4),
+    "walcl": dict(fn=lambda: fred("WALCL"), label="美联储资产负债表", unit="万亿美元", scale=1e-6),
+    "nfci":  dict(fn=lambda: fred("NFCI"), label="芝加哥联储金融条件指数", unit="", scale=1.0),
+}
+# 判断规则里各品种对应的咽喉（物流冲击）
+LOGISTICS = {"ttf": "霍尔木兹", "brent": "霍尔木兹"}

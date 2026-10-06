@@ -269,8 +269,8 @@ button.mtile:focus-visible,button.mt:focus-visible{outline:2px solid var(--accen
 
   <!-- 周频 -->
   <div class="pane" id="p-weekly" role="tabpanel" aria-labelledby="t-weekly" hidden>
-    <div class="banner">本面板仍为示例数据，第 3 阶段接入 EIA、CFTC 与美联储周度数据。</div>
-    <div class="cadence"><span><span class="cad cad-w">周</span> 各数据按自己的发布日更新</span><span>EIA 库存 <b>每周三</b></span><span>CFTC 持仓 <b>每周五（截至周二）</b></span><span>判断卡片 <b>每周一重算</b></span><span>本周判断基于 <b class="num">2026-10-03</b> 前数据</span></div>
+    <div class="banner">CFTC 持仓、交易所仓单、美联储周度数据和品种判断已接入真实数据；EIA 原油库存、欧洲天然气库存、SCFI 运价、中国港口铁矿库存仍为示例（前两项需要注册免费 key，后两项为付费数据）。</div>
+    <div class="cadence"><span><span class="cad cad-w">周</span> 各数据按自己的发布日更新</span><span>EIA 库存 <b>每周三</b></span><span>CFTC 持仓 <b>每周五（截至周二）</b></span><span>判断卡片 <b>每周一重算</b></span><span>持仓数据截至 <b class="num" id="weeklyAsOf">—</b></span></div>
     <section class="panel">
       <div class="ph"><div><div class="eyebrow">Regime</div><h2>关键品种：涨价是哪一种</h2></div>
         <div class="legend"><span class="pill p-crit">真实紧缺</span><span class="pill p-warn">资金推动</span><span class="pill p-acc">物流冲击</span><span class="pill p-ok">需求走弱</span><span class="pill p-calm">平稳</span></div></div>
@@ -504,17 +504,17 @@ function renderCards(){document.getElementById("cards").innerHTML=C.filter(c=>c.
  <div style="display:flex;align-items:baseline;gap:10px"><span class="px num">${fmt(c.end)}</span><span class="chg num ${cls(c.w1)}">1周 ${pct(c.w1)}</span><span class="chg num ${cls(c.m1)}">1月 ${pct(c.m1)}</span></div>
  ${spark(c.s.slice(-130),300,64,{cls:"main",grid:true,sw:1.6})}
  <div class="facts"><div class="fact"><span class="k">期限结构 M1→M12${c.curveReal?"":" · 示例"}</span>${curveSvg(c.cv)}</div>
- <div class="fact"><span class="k">库存 vs 5 年同期</span>${c.inv==null?'<div class="v" style="color:var(--faint)">不适用</div>':`<div class="v num">${c.inv}% 分位</div><div class="gauge"><i style="left:calc(${c.inv}% - 1px)"></i></div>`}</div>
+ <div class="fact"><span class="k">${c.invLabel||"库存 vs 5 年同期"}</span>${c.inv==null?'<div class="v" style="color:var(--faint)">不适用</div>':`<div class="v num">${c.inv}% 分位</div><div class="gauge"><i style="left:calc(${c.inv}% - 1px)"></i></div>`}</div>
  <div class="fact"><span class="k">投机净多（两年）</span>${gauge(c.cot)}</div></div>
  <div class="read">${c.read}</div></button>`).join("");
  document.querySelectorAll(".card").forEach(b=>b.onclick=()=>openD(b.dataset.id));}
 const COT=[["原油",62,5],["欧洲天然气",55,-3],["铜",94,3],["铝",66,1],["黄金",71,-2],["白银",79,4],["大豆",35,-6],["小麦",18,-2],["玉米",27,2]];
-document.getElementById("cot").innerHTML=COT.map(c=>`<tr><td style="text-align:left">${c[0]}</td><td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span>${c[1]}%</span><span class="gauge" style="width:80px;display:inline-block;margin:0"><i style="left:calc(${c[1]}% - 1px)"></i></span></div></td><td class="num ${cls(c[2])}">${c[2]>0?"+":""}${c[2]}</td><td>${c[1]>=85?'<span class="pill p-warn">拥挤</span>':c[1]<=15?'<span class="pill p-ok">极度看空</span>':'<span class="pill p-calm">中性</span>'}</td></tr>`).join("");
+function renderCot(){document.getElementById("cot").innerHTML=COT.map(c=>`<tr><td style="text-align:left">${c[0]}</td><td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span>${c[1]}%</span><span class="gauge" style="width:80px;display:inline-block;margin:0"><i style="left:calc(${c[1]}% - 1px)"></i></span></div></td><td class="num ${cls(c[2])}">${c[2]>0?"+":""}${c[2]}</td><td>${c[1]>=85?'<span class="pill p-warn">拥挤</span>':c[1]<=15?'<span class="pill p-ok">极度看空</span>':'<span class="pill p-calm">中性</span>'}</td></tr>`).join("");}
 const INV=[["EIA 美国商业原油","4.12 亿桶","−310 万",18],["EIA 汽油","2.21 亿桶","+80 万",44],["EIA 馏分油","1.15 亿桶","−140 万",12],["库欣原油","2,280 万桶","−60 万",9],["欧洲天然气库存填充率","86%","+0.6 pct",21],["LME 铜","14.6 万吨","+0.9 万",61],["上期所铜","8.2 万吨","−0.4 万",38],["中国港口铁矿石","1.52 亿吨","+600 万",83]];
-document.getElementById("inv").innerHTML=INV.map(r=>`<tr><td style="text-align:left">${r[0]}</td><td class="num">${r[1]}</td><td class="num ${r[2].startsWith("+")?"up":"down"}">${r[2]}</td><td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span class="${r[3]<=20?"up":r[3]>=80?"down":""}">${r[3]}%</span><span class="gauge" style="width:70px;display:inline-block;margin:0"><i style="left:calc(${r[3]}% - 1px)"></i></span></div></td></tr>`).join("");
+function renderInv(){document.getElementById("inv").innerHTML=INV.map(r=>`<tr><td style="text-align:left">${r[0]}${r[4]?liveTag(true,r[4],""):'<span class="mock">示例</span>'}</td><td class="num">${r[1]}</td><td class="num ${r[2].startsWith("+")?"up":"down"}">${r[2]}</td><td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span class="${r[3]<=20?"up":r[3]>=80?"down":""}">${r[3]}%</span><span class="gauge" style="width:70px;display:inline-block;margin:0"><i style="left:calc(${r[3]}% - 1px)"></i></span></div></td></tr>`).join("");}
 const WM=[["美国初请失业金","23.4","万人","22.1","周四发布","截至 09-27",.5],["美联储资产负债表","6.41","万亿美元","6.43","周四 H.4.1","截至 10-01",.02],["上海出口集装箱运价 SCFI","2,140","点","2,015","每周五","截至 10-03",60],["芝加哥联储金融条件指数","−0.42","","−0.45","每周三","截至 09-26",.03]];
-document.getElementById("weeklyMisc").innerHTML=WM.map(m=>{const v=parseFloat(m[1].replace("−","-").replace(/,/g,""));const pv=parseFloat(m[3].replace("−","-").replace(/,/g,""));const s=mseries(v,pv,26,m[6]);return `<button class="mt" data-info="周·${m[0]}" data-val="${m[1]}" data-unit="${m[2]}" data-cad="周"><span class="hint">?</span><div class="k">${m[0]}</div><div class="row1"><span class="v num">${m[1]}</span><span class="pv">${m[2]} · 前值 ${m[3]}</span></div>${spark(s,200,34,{col:css("--calm"),r:2})}${prow((INFO["周·"+m[0]]||[])[0])}<div class="when"><span>${m[5]}</span><span>${m[4]}</span></div></button>`}).join("");
-bindInfo(document.getElementById("weeklyMisc"));
+function renderWM(){document.getElementById("weeklyMisc").innerHTML=WM.map(m=>{const v=parseFloat(m[1].replace("−","-").replace(/,/g,""));const pv=parseFloat(m[3].replace("−","-").replace(/,/g,""));const s=m.spark||mseries(v,pv,26,m[6]);return `<button class="mt" data-info="周·${m[0]}" data-val="${m[1]}" data-unit="${m[2]}" data-cad="周" data-pct="${m.pct??""}"><span class="hint">?</span><div class="k">${m[0]}${liveTag(m.real,m.date||"","")}</div><div class="row1"><span class="v num">${m[1]}</span><span class="pv">${m[2]} · 前值 ${m[3]}</span></div>${spark(s,200,34,{col:css("--calm"),r:2})}${prow(m.pct??(m.real?null:(INFO["周·"+m[0]]||[])[0]))}<div class="when"><span>${m[5]}</span><span>${m[4]}</span></div></button>`}).join("");bindInfo(document.getElementById("weeklyMisc"));}
+
 
 // 月频
 const MG=[
@@ -607,13 +607,24 @@ function applyLive(D){LIVE=D;let n=0;
  CK.forEach(c=>{const x=D.chokepoints[c[0]];if(x&&x.dev!=null){c[3]=x.dev;c.real=true;c.date=x.date;n++;}});
  if(D.spreads.brent_wti){SP[0][1]=D.spreads.brent_wti.value.toFixed(2)+" $/桶";SP[0][2]="";SP[0].real=true}
  if(D.spreads.ttf_hh){SP[1][1]=D.spreads.ttf_hh.value.toFixed(2)+" $/MMBtu";SP[1][2]="";SP[1].real=true}
+ const Wk=D.weekly;
+ if(Wk){
+  if(Object.keys(Wk.cot).length){COT.length=0;Object.entries(Wk.cot).forEach(([k,v])=>COT.push([k+(k==="原油"?" WTI":""),v.pct2y,v.chg]));n+=COT.length;}
+  const wr=Object.values(Wk.warrants);for(let i=wr.length-1;i>=0;i--){const w=wr[i];INV.unshift([w.label+`（近 ${w.days} 个交易日）`,w.last.toLocaleString("en-US")+" "+w.unit,(w.chg>0?"+":"−")+Math.abs(w.chg).toLocaleString("en-US"),w.pct,w.date]);n++;}
+  const WMAP={"美国初请失业金":"icsa","美联储资产负债表":"walcl","芝加哥联储金融条件指数":"nfci"};
+  WM.forEach(m=>{const x=Wk.misc[WMAP[m[0]]];if(!x)return;const dg=x.unit==="万人"?1:x.unit==="万亿美元"?2:2;m[1]=x.last.toFixed(dg).replace("-","−");m[3]=x.prev!=null?x.prev.toFixed(dg).replace("-","−"):"—";m[5]="截至 "+x.date.slice(5);m.spark=x.spark;m.pct=x.pct10y;m.real=true;m.date=x.date;n++;});
+  C.forEach(c=>{const r=Wk.regimes[c.id];if(!r)return;c.reg=r.label;c.read=r.read;c.cot=r.cot??null;c.inv=Wk.warrants[c.id]?Wk.warrants[c.id].pct:null;c.invLabel=Wk.warrants[c.id]?"仓单近 3 月分位":null;c.regReal=true;});
+  const cd=Object.values(Wk.cot)[0];const el2=document.getElementById("weeklyAsOf");if(el2&&cd)el2.textContent=cd.date;
+ }
  // 规则版要点：只用真实数据生成
  const ck=Object.entries(D.chokepoints).sort((a,b)=>a[1].dev-b[1].dev)[0];
  const mov=C.filter(c=>c.real).sort((a,b)=>Math.abs(b.w1)-Math.abs(a.w1))[0];
  const ry=D.daily.us_real10y,vx=D.daily.us_vix,sp=D.daily.x_cnus10y;
  V.length=0;
  if(ck)V.push([ck[1].dev<=-15?"crit":"ok","d",`${ck[0]}通行量 ${ck[1].dev>0?"+":""}${ck[1].dev}%`,`最近 7 天日均 ${ck[1].last7} 艘，之前 30 天日均 ${ck[1].base30} 艘。`,`PortWatch 截至 ${ck[1].date.slice(5)}`]);
- if(mov)V.push([mov.w1>0?"warn":"ok","d",`${mov.name} 1 周 ${pct(mov.w1)}`,`本周波动最大的品种，最新 ${fmt(mov.end)} ${mov.u}。`,`截至 ${mov.date.slice(5)}`]);
+ const rg=D.weekly&&Object.entries(D.weekly.regimes).find(([k,v])=>v.label!=="平稳");
+ if(rg){const cc=C.find(c=>c.id===rg[0]);V.push([{"真实紧缺":"crit","资金推动":"warn","物流冲击":"crit","需求走弱":"ok"}[rg[1].label]||"ok","w",`${cc?cc.name:rg[0]}：${rg[1].label}`,rg[1].read.split("。")[0]+"。",`CFTC 截至 ${Object.values(D.weekly.cot)[0].date.slice(5)}`]);}
+ else if(mov)V.push([mov.w1>0?"warn":"ok","d",`${mov.name} 1 周 ${pct(mov.w1)}`,`本周波动最大的品种，最新 ${fmt(mov.end)} ${mov.u}。`,`截至 ${mov.date.slice(5)}`]);
  if(ry)V.push([ry.pct10y>=80?"crit":"ok","d",`美国 10Y 实际利率 ${ry.last.toFixed(2)}%`,`处在过去十年 ${ry.pct10y}% 分位（${bandOf(ry.pct10y)}），全球融资成本偏${ry.pct10y>=60?"紧":"松"}。`,`FRED 截至 ${ry.date.slice(5)}`]);
  if(sp)V.push([sp.pct10y<=20?"warn":"ok","d",`中美 10Y 利差 ${Math.round(sp.last)} bp`,`处在过去十年 ${sp.pct10y}% 分位，人民币资产相对收益${sp.pct10y<=20?"处于低位":"一般"}。`,`截至 ${sp.date.slice(5)}`]);
  document.getElementById("verdict").innerHTML=V.map(v=>`<div class="sig"><div class="bar" style="background:var(${VC[v[0]]})"></div><div><h3><span class="cad ${CADN[v[1]][1]}">${CADN[v[1]][0]}</span>${v[2]}</h3><p>${v[3]}</p><p class="num" style="font-size:11px;color:var(--faint);margin-top:2px">${v[4]} · 规则自动生成</p></div></div>`).join("");
@@ -628,7 +639,7 @@ function show(p){if(!PANES.includes(p))p="daily";PANES.forEach(x=>{document.getE
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{show(t.dataset.p);history.replaceState(null,"","#"+t.dataset.p)});
 let start=(location.hash||"").slice(1);if(!PANES.includes(start)){try{start=localStorage.getItem("wem-tab")||"daily"}catch(e){start="daily"}}
 
-function renderAll(){renderQuad();renderMkt();renderHeat();renderMap();renderFreight();renderCards();renderMonthly();renderNews();}
+function renderAll(){renderCot();renderInv();renderWM();renderQuad();renderMkt();renderHeat();renderMap();renderFreight();renderCards();renderMonthly();renderNews();}
 document.querySelectorAll(".seg button").forEach(b=>{b.setAttribute("aria-pressed",+b.dataset.r===RANGE);b.onclick=()=>{RANGE=+b.dataset.r;try{localStorage.setItem("wem-range",RANGE)}catch(e){}document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderMkt();renderHeat();renderFreight();}});
 show(start);fetch("data/latest.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(D=>{applyLive(D);renderAll();}).catch(e=>{document.getElementById("livebadge").textContent="真实数据加载失败 · 显示示例";renderAll();});
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",renderAll);
