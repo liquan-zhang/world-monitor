@@ -1,0 +1,460 @@
+/* v2：按更新频率分面板 */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line);padding-bottom:0}
+.tab{all:unset;cursor:pointer;padding:9px 14px 10px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;display:flex;gap:8px;align-items:center}
+.tab small{font-family:var(--f-num);font-weight:500;font-size:11px;color:var(--faint)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pane{display:flex;flex-direction:column;gap:14px}
+.cadence{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.cadence b{color:var(--ink);font-weight:600}
+.cad{font-family:var(--f-num);font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:4px;border:1px solid currentColor;letter-spacing:.04em}
+.cad-d{color:var(--accent)} .cad-w{color:var(--calm)} .cad-m{color:var(--ok)} .cad-n{color:var(--warn)}
+.mgroup{display:flex;flex-direction:column;gap:8px}
+.mgroup h3{font-size:14px;font-weight:700;display:flex;gap:10px;align-items:baseline}
+.mgroup h3 span{font-size:12px;font-weight:400;color:var(--faint)}
+.mtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.mt{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;min-width:0;background:var(--panel)}
+.mt .k{font-size:12px;color:var(--muted)}
+.mt .row1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.mt .v{font-size:21px;font-weight:600}
+.mt .pv{font-size:11.5px;color:var(--faint)}
+.mt .when{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);font-family:var(--f-num)}
+.mt svg{width:100%;height:34px;display:block}
+.surp{font-size:11px;font-weight:600}
+.wk td{font-size:13px}
+.news{display:flex;flex-direction:column}
+.nw{display:grid;grid-template-columns:72px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.nw:last-child{border-bottom:0}
+.nw time{font-family:var(--f-num);font-size:12px;color:var(--faint);padding-top:2px}
+.nw h3{font-size:14.5px;font-weight:700;line-height:1.45}
+.nw p{margin:4px 0 6px;font-size:13px;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;font-size:11.5px}
+.tag{padding:1px 8px;border-radius:999px;background:var(--calm-soft);color:var(--calm)}
+.tag.imp{background:var(--accent-soft);color:var(--accent)}
+.tag.lib{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.nfilter{display:flex;flex-wrap:wrap;gap:6px}
+@media (max-width:520px){.nw{grid-template-columns:1fr;gap:4px}}
+button.mtile,button.mt{font:inherit;color:inherit;text-align:left;cursor:pointer;background:var(--panel);width:100%;position:relative}
+button.mtile:hover,button.mt:hover{border-color:var(--faint)}
+button.mtile:focus-visible,button.mt:focus-visible{outline:2px solid var(--accent)}
+.hint{position:absolute;top:8px;right:9px;width:16px;height:16px;border-radius:50%;border:1px solid var(--line);color:var(--faint);font-size:10.5px;line-height:14px;text-align:center;font-family:var(--f-num)}
+.pr{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-top:2px}
+.pb{flex:1;height:5px;border-radius:3px;position:relative;background:linear-gradient(90deg,var(--down-soft) 0 20%,var(--line) 20% 80%,var(--up-soft) 80% 100%)}
+.pb i{position:absolute;top:-3px;width:3px;height:11px;border-radius:2px;background:var(--ink)}
+.quad{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.quad{grid-template-columns:1fr}}
+.quad svg{width:100%;height:auto;display:block}
+.qlist{display:flex;flex-direction:column;gap:10px}
+.qc{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.qc h3{font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.qc p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
+.big-pb{height:10px;margin:18px 0 6px}
+.big-pb i{top:-4px;height:18px;width:4px}
+.scale{display:flex;justify-content:space-between;font-size:11px;color:var(--faint)}
+.exp dt{font-size:12px;color:var(--faint);margin-top:10px}
+.exp dd{margin:2px 0 0;font-size:14px;line-height:1.65}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>世界经济监控台</h1>
+      <div class="sub">以中美两极为主轴，按更新频率分面板：日频看市场，周频看库存和资金，月频看经济数据，新闻看事件</div>
+    </div>
+    <div class="meta">
+      <span class="badge">示例数据 · 仅示意版式</span>
+      <span class="stamp num">页面生成 2026-10-06 07:00 SGT</span>
+    </div>
+  </header>
+
+  <section aria-label="本周要点">
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <section class="panel">
+    <div class="ph"><div><div class="eyebrow">Cycle · <span class="cad cad-m">月</span></div><h2>经济周期：中美两国在哪一格</h2></div><div class="note">横轴是增长强弱，纵轴是通胀高低；点是现在，线是过去 12 个月走过的路</div></div>
+    <div class="quad"><svg id="quad" viewBox="0 0 520 440" role="img" aria-label="中美经济周期四象限"></svg><div class="qlist" id="qlist"></div></div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="面板">
+    <button class="tab" role="tab" id="t-daily" data-p="daily">日频 <small>每日收盘</small></button>
+    <button class="tab" role="tab" id="t-weekly" data-p="weekly">周频 <small>每周</small></button>
+    <button class="tab" role="tab" id="t-monthly" data-p="monthly">月频 <small>按发布</small></button>
+    <button class="tab" role="tab" id="t-news" data-p="news">新闻与事件 <small>随时</small></button>
+    <button class="tab" role="tab" id="t-cal" data-p="cal">日程与日志</button>
+  </nav>
+
+  <!-- 日频 -->
+  <div class="pane" id="p-daily" role="tabpanel" aria-labelledby="t-daily">
+    <div class="cadence"><span><span class="cad cad-d">日</span> 每个交易日收盘后更新</span><span>数据截至 <b class="num">2026-10-05 收盘</b></span><span>下次更新 <b class="num">10-07 07:00</b></span>
+      <span class="seg" role="group" aria-label="时间范围" style="margin-left:auto"><button id="r1m" data-r="22">1M</button><button id="r3m" data-r="66">3M</button><button id="r6m" data-r="130">6M</button><button id="r1y" data-r="252">1Y</button></span></div>
+    <section class="panel">
+      <div class="ph"><div><div class="eyebrow">Markets</div><h2>金融市场</h2></div><div class="note">按中美两极组织：美国、中国、中美之间，全球其余只留两项</div></div>
+      <div id="mkt"></div>
+    </section>
+    <section class="panel">
+      <div class="ph">
+        <div><div class="eyebrow">Commodities</div><h2>商品价格与期限结构</h2></div>
+        <div class="filters" id="filters" role="group" aria-label="品类筛选">
+          <button class="chip" data-g="all" aria-pressed="true">全部</button><button class="chip" data-g="能源">能源</button><button class="chip" data-g="金属">金属</button><button class="chip" data-g="贵金属">贵金属</button><button class="chip" data-g="电池">电池材料</button><button class="chip" data-g="农产">农产</button>
+        </div>
+      </div>
+      <div class="tablebox"><table id="heat"><thead><tr>
+        <th data-k="name">品种</th><th data-k="end">最新</th><th data-k="d1">1日</th><th data-k="w1">1周</th><th data-k="m1">1月</th><th data-k="y1">1年</th><th data-k="curve">期限结构</th><th>走势</th>
+      </tr></thead><tbody></tbody></table></div>
+      <div class="note" style="margin-top:8px;color:var(--faint);font-size:12px">点击表头排序，点击任一行打开详情。红涨绿跌。持仓和库存是周度数据，在「周频」面板。</div>
+    </section>
+    <section class="grid2">
+      <div class="panel mapbox">
+        <div class="ph"><div><div class="eyebrow">Chokepoints</div><h2>咽喉通行量</h2></div><div class="note">每日通行船数 vs 30 日均值</div></div>
+        <svg viewBox="0 0 900 330" role="img" aria-label="全球咽喉通行量偏离地图" id="map">
+          <rect width="900" height="330" fill="var(--map-sea)"/>
+          <path d="__LAND__" fill="var(--map-land)" stroke="var(--panel)" stroke-width=".6"/>
+          <g id="lanes"></g><g id="cks"></g>
+        </svg>
+        <div class="cklist" id="cklist"></div>
+      </div>
+      <div class="panel freight">
+        <div class="ph"><div><div class="eyebrow">Freight &amp; Spreads</div><h2>运价与价差</h2></div><div class="note">运价指数化，区间起点 = 100</div></div>
+        <svg id="freight" viewBox="0 0 400 150" role="img" aria-label="运价指数走势"></svg>
+        <div class="legend" id="flegend"></div>
+        <div class="list" id="spreads" style="margin-top:8px"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 周频 -->
+  <div class="pane" id="p-weekly" role="tabpanel" aria-labelledby="t-weekly" hidden>
+    <div class="cadence"><span><span class="cad cad-w">周</span> 各数据按自己的发布日更新</span><span>EIA 库存 <b>每周三</b></span><span>CFTC 持仓 <b>每周五（截至周二）</b></span><span>判断卡片 <b>每周一重算</b></span><span>本周判断基于 <b class="num">2026-10-03</b> 前数据</span></div>
+    <section class="panel">
+      <div class="ph"><div><div class="eyebrow">Regime</div><h2>关键品种：涨价是哪一种</h2></div>
+        <div class="legend"><span class="pill p-crit">真实紧缺</span><span class="pill p-warn">资金推动</span><span class="pill p-acc">物流冲击</span><span class="pill p-ok">需求走弱</span><span class="pill p-calm">平稳</span></div></div>
+      <div class="cards" id="cards"></div>
+    </section>
+    <section class="grid2">
+      <div class="panel wk">
+        <div class="ph"><div><div class="eyebrow">CFTC</div><h2>投机资金持仓</h2></div><div class="note">管理基金净多头，两年分位；≥85% 视为拥挤</div></div>
+        <div class="tablebox"><table style="min-width:420px"><thead><tr><th>品种</th><th>净多分位</th><th>周变化</th><th>状态</th></tr></thead><tbody id="cot"></tbody></table></div>
+      </div>
+      <div class="panel wk">
+        <div class="ph"><div><div class="eyebrow">Inventories</div><h2>库存</h2></div><div class="note">与过去 5 年同期比较</div></div>
+        <div class="tablebox"><table style="min-width:440px"><thead><tr><th>库存</th><th>最新</th><th>周变化</th><th>5 年同期分位</th></tr></thead><tbody id="inv"></tbody></table></div>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="ph"><div><div class="eyebrow">Other Weekly</div><h2>其他周度指标</h2></div></div>
+      <div class="mtiles" id="weeklyMisc"></div>
+    </section>
+  </div>
+
+  <!-- 月频 -->
+  <div class="pane" id="p-monthly" role="tabpanel" aria-labelledby="t-monthly" hidden>
+    <div class="cadence"><span><span class="cad cad-m">月</span> 每个指标按官方发布日更新，卡片上标注数据所属月份和下次发布日</span><span>按中美两极组织：美国、中国、中美之间，全球其余只留六项</span><span>季度数据（GDP）同列于此</span></div>
+    <div id="monthly" class="pane"></div>
+  </div>
+
+  <!-- 新闻 -->
+  <div class="pane" id="p-news" role="tabpanel" aria-labelledby="t-news" hidden>
+    <div class="cadence"><span><span class="cad cad-n">事件</span> 随时更新，只收录影响上面指标的国际新闻</span><span>每条标注影响的指标和资料库对应页面</span></div>
+    <section class="panel">
+      <div class="ph"><div><div class="eyebrow">World News</div><h2>国际新闻与政策事件</h2></div>
+        <div class="nfilter filters" id="nfilter" role="group" aria-label="新闻分类"><button class="chip" data-c="all" aria-pressed="true">全部</button><button class="chip" data-c="地缘">地缘冲突</button><button class="chip" data-c="贸易">贸易与制裁</button><button class="chip" data-c="央行">央行与财政</button><button class="chip" data-c="产业">产业与供给</button></div></div>
+      <div class="news" id="news"></div>
+    </section>
+  </div>
+
+  <!-- 日程与日志 -->
+  <div class="pane" id="p-cal" role="tabpanel" aria-labelledby="t-cal" hidden>
+    <section class="panel cal">
+      <div class="ph"><div><div class="eyebrow">Calendar</div><h2>未来两周发布日程</h2></div><div class="note">标注每项数据会更新哪个面板</div></div>
+      <div class="list" id="cal"></div>
+    </section>
+    <section class="panel log">
+      <div class="ph"><div><div class="eyebrow">Signal Log</div><h2>信号日志</h2></div><div class="note">每次触发都记录，一个月后自动回填实际走势，用来检验规则是否可靠</div></div>
+      <div class="tablebox"><table><thead><tr><th>日期</th><th>来源面板</th><th>品种 / 指标</th><th>信号</th><th>当时判断</th><th class="num">之后 1 个月</th><th>结果</th></tr></thead><tbody id="log"></tbody></table></div>
+    </section>
+  </div>
+
+  <section class="panel foot">
+    <details><summary>判断规则与数据源</summary>
+      <p><b>真实紧缺</b>：价格上涨 + 近月相对远月升水且走阔 + 库存低于 5 年同期中位。<b>资金推动</b>：价格上涨 + 期限结构平坦或远月升水 + 投机净多处于两年 85% 分位以上。<b>物流冲击</b>：运价跳升 + 咽喉通行量低于 30 日均值 25% 以上 + 地区价差走阔。<b>需求走弱</b>：价格下跌 + 库存累积 + 远月升水。</p>
+      <p>日频：Yahoo Finance、FRED、AKShare（国内期货）、IMF PortWatch、波罗的海交易所。周频：EIA、CFTC、LME/SHFE、美联储 H.4.1、上海航运交易所。月频：ISM、国家统计局、欧盟统计局、美国劳工统计局与经济分析局、韩国关税厅、CPB 世界贸易监测、WSTS、联合国粮农组织、中国人民银行、地缘政治风险指数（Caldara &amp; Iacoviello）、经济政策不确定性指数。新闻：通讯社与官方公告，按影响指标筛选。</p>
+    </details>
+    <div>本页所有数字和新闻条目均为模拟生成，用于展示看板的理想形态，不代表真实市场或真实事件。</div>
+  </section>
+</div>
+
+<div class="drawer" id="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="dtitle">
+  <div class="in" id="din"></div>
+</div>
+
+<script>
+(function(){
+let seed=20261006; const rnd=()=>{seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296};
+const gauss=()=>{let u=0,v=0;while(!u)u=rnd();while(!v)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+function series(end,vol,drift,n=260){let x=[0];for(let i=1;i<n;i++)x.push(x[i-1]+drift+vol*gauss());const last=x[n-1];return x.map(v=>end*Math.exp(v-last));}
+function mseries(end,prev,n=24,amp=1){let a=[];let v=end-(end-prev)*n*0.25;for(let i=0;i<n-2;i++){v+= (end-v)/(n-i)*1.2+amp*0.35*gauss();a.push(v)}a.push(prev);a.push(end);return a;}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let RANGE=130; try{const r=localStorage.getItem("wem-range");if(r)RANGE=+r}catch(e){}
+
+const C=[
+ {id:"brent",name:"布伦特原油",g:"能源",u:"$/桶",end:84.6,vol:.019,dr:.0012,curve:"升水",cv:[0,-.6,-1.1,-1.5,-1.8,-2.1,-2.3,-2.5,-2.6,-2.7,-2.8,-2.9],cot:62,inv:18,reg:"真实紧缺",key:1,
+  read:"近月比 6 个月后贵 2.1 美元且仍在走阔，美国商业库存连降 3 周至 5 年同期 18% 分位；投机持仓不拥挤。涨价由现货紧张推动。"},
+ {id:"wti",name:"WTI 原油",g:"能源",u:"$/桶",end:80.9,vol:.019,dr:.0011,curve:"升水",cot:58},
+ {id:"hh",name:"美国天然气 HH",g:"能源",u:"$/MMBtu",end:3.28,vol:.03,dr:.0003,curve:"贴水",cot:41},
+ {id:"ttf",name:"欧洲天然气 TTF",g:"能源",u:"€/MWh",end:52.4,vol:.032,dr:.0019,curve:"升水",cv:[0,-.9,-2.2,-3.1,-3.6,-3.4,-2.6,-1.5,-.8,-.4,-.2,0],cot:55,inv:34,reg:"物流冲击",key:1,
+  read:"卡塔尔液化气需绕行，霍尔木兹通行量低于均值 38%；欧亚气价差走阔至 4.1 美元。供应总量未减，问题在通道。"},
+ {id:"jkm",name:"亚洲 LNG JKM",g:"能源",u:"$/MMBtu",end:17.9,vol:.028,dr:.0016,curve:"升水",cot:null},
+ {id:"coal",name:"动力煤 纽卡斯尔",g:"能源",u:"$/吨",end:121,vol:.018,dr:.0004,curve:"平坦",cot:null},
+ {id:"cu",name:"铜 LME",g:"金属",u:"$/吨",end:11240,vol:.014,dr:.0011,curve:"平坦",cv:[0,.1,.3,.4,.6,.8,.9,1.1,1.2,1.3,1.5,1.6],cot:94,inv:61,reg:"资金推动",key:1,
+  read:"价格创新高，但期限结构平坦、库存在 5 年中位以上；投机净多处在两年 94% 分位。上涨主要来自资金，持仓拥挤时回撤风险偏大。"},
+ {id:"al",name:"铝 LME",g:"金属",u:"$/吨",end:2655,vol:.012,dr:.0003,curve:"平坦",cot:66},
+ {id:"ni",name:"镍 LME",g:"金属",u:"$/吨",end:15420,vol:.016,dr:-.0006,curve:"贴水",cot:22},
+ {id:"fe",name:"铁矿石 62%",g:"金属",u:"$/吨",end:96.5,vol:.017,dr:-.0012,curve:"贴水",cv:[0,.5,1.1,1.6,2.0,2.3,2.6,2.8,3.0,3.1,3.2,3.3],cot:null,inv:83,reg:"需求走弱",key:1,
+  read:"中国港口库存升至 5 年同期 83% 分位，远月比近月贵 3.3 美元；钢厂利润收窄、开工回落。价格下跌反映的是需求，而非供给扰动。"},
+ {id:"li",name:"碳酸锂 广期所",g:"电池",u:"元/吨",end:76800,vol:.022,dr:-.0002,curve:"平坦",cv:[0,.2,.1,.3,.2,.4,.3,.5,.4,.6,.5,.6],cot:null,inv:52,reg:"平稳",key:1,
+  read:"经过两年出清后价格横盘，库存回到中位；澳洲精矿减产与国内新产能投放大致相抵。暂无方向性信号。"},
+ {id:"au",name:"黄金",g:"贵金属",u:"$/盎司",end:3912,vol:.009,dr:.0013,curve:"正常",cv:[0,.4,.8,1.2,1.6,2.0,2.4,2.8,3.2,3.6,4.0,4.4],cot:71,inv:null,reg:"资金推动",key:1,
+  read:"实际利率持平而金价上行，央行连续增持；投机持仓在 71% 分位，未到拥挤。主导力量是官方部门的储备分散，不是短线投机。"},
+ {id:"ag",name:"白银",g:"贵金属",u:"$/盎司",end:46.2,vol:.017,dr:.0014,curve:"正常",cot:79},
+ {id:"soy",name:"大豆 CBOT",g:"农产",u:"美分/蒲式耳",end:1032,vol:.012,dr:-.0002,curve:"正常",cot:35},
+ {id:"wheat",name:"小麦 CBOT",g:"农产",u:"美分/蒲式耳",end:548,vol:.016,dr:-.0004,curve:"正常",cot:18}
+];
+C.forEach(c=>{c.s=series(c.end,c.vol,c.dr);const s=c.s,n=s.length-1;const ch=k=>(s[n]/s[n-k]-1)*100;c.d1=ch(1);c.w1=ch(5);c.m1=ch(22);c.y1=ch(252);});
+const REGCLS={"真实紧缺":"p-crit","资金推动":"p-warn","物流冲击":"p-acc","需求走弱":"p-ok","平稳":"p-calm"};
+const fmt=v=>{if(Math.abs(v)>=1000)return v.toLocaleString("en-US",{maximumFractionDigits:0});if(Math.abs(v)>=100)return v.toFixed(1);return v.toFixed(2)};
+const pct=v=>(v>0?"+":"")+v.toFixed(1)+"%";
+const cls=v=>v>0?"up":v<0?"down":"";
+
+function spark(arr,w,h,opt={}){const a=opt.n?arr.slice(-opt.n):arr;const mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1;const pad=opt.pad??2;
+ const pts=a.map((v,i)=>[pad+i*(w-2*pad)/(a.length-1),pad+(h-2*pad)*(1-(v-mn)/r)]);
+ const col=opt.col||(a[a.length-1]>=a[0]?css("--up"):css("--down"));
+ const d="M"+pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join("L");
+ const area=d+`L${pts[pts.length-1][0].toFixed(1)},${h}L${pts[0][0].toFixed(1)},${h}Z`;
+ const e=pts[pts.length-1];
+ let grid="";if(opt.grid){for(let i=1;i<4;i++)grid+=`<line x1="0" x2="${w}" y1="${(h*i/4).toFixed(1)}" y2="${(h*i/4).toFixed(1)}" stroke="${css("--line")}" stroke-width=".6"/>`}
+ return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="${opt.cls||""}">${grid}<path d="${area}" fill="${col}" fill-opacity=".1"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${opt.sw||1.4}" vector-effect="non-scaling-stroke"/>${opt.dot!==false?`<circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="${opt.r||2.2}" fill="${col}"/>`:""}</svg>`;}
+function bars(arr0,w,h,ref){const arr=ref?arr0.map(v=>v-ref):arr0;const mn=Math.min(0,...arr),mx=Math.max(0,...arr),r=mx-mn||1;const bw=w/arr.length;const z=h*(mx/r);return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><line x1="0" x2="${w}" y1="${z.toFixed(1)}" y2="${z.toFixed(1)}" stroke="${css("--line")}" stroke-width=".8"/>${arr.map((v,i)=>{const y=v>=0?z-(v/r)*h:z;const hh=Math.abs(v)/r*h;return `<rect x="${(i*bw+bw*.15).toFixed(1)}" y="${y.toFixed(1)}" width="${(bw*.7).toFixed(1)}" height="${Math.max(hh,.8).toFixed(1)}" fill="${i===arr.length-1?css("--accent"):css("--faint")}" fill-opacity="${i===arr.length-1?1:.45}"/>`}).join("")}</svg>`;}
+
+// 本周要点
+const V=[["crit","d","霍尔木兹通行量 −38%","低于 30 日均值；亚欧气价差走阔至 4.1 美元，绕行好望角船数 +41%。","截至 10-05"],
+ ["crit","w","原油：真实紧缺","EIA 商业库存连降 3 周至 5 年同期 18% 分位，近月升水走阔。","EIA 10-01"],
+ ["warn","w","铜：资金推动","CFTC 投机净多处在两年 94% 分位，库存不紧张，回撤风险偏大。","CFTC 截至 09-30"],
+ ["ok","m","中美制造业 PMI 同时回升","美国 ISM 49.6、中国官方 49.8，中国 PPI 降幅收窄至 −1.6%。","9 月数据"]];
+const VC={crit:"--crit",acc:"--accent",warn:"--warn",ok:"--ok"},CADN={d:["日","cad-d"],w:["周","cad-w"],m:["月","cad-m"],n:["事件","cad-n"]};
+document.getElementById("verdict").innerHTML=V.map(v=>`<div class="sig"><div class="bar" style="background:var(${VC[v[0]]})"></div><div><h3><span class="cad ${CADN[v[1]][1]}">${CADN[v[1]][0]}</span>${v[2]}</h3><p>${v[3]}</p><p class="num" style="font-size:11px;color:var(--faint);margin-top:2px">${v[4]}</p></div></div>`).join("");
+
+
+// 指标说明：[十年分位, 这是什么, 怎么读, 资料库对应页]
+const INFO={
+"美国·10Y 实际利率":[88,"扣除通胀预期后的 10 年期美国国债收益率，也就是持有美元资产的真实回报。","越高，借钱越贵，股票、黄金、房地产的估值越受压；高于 2% 属于偏紧。","货币创造与加息传导"],
+"美国·2Y−10Y 利差":[62,"10 年期美债收益率减去 2 年期美债收益率。","为负（倒挂）常被视为衰退前兆；由负转正往往发生在衰退前后、央行开始降息时。","货币创造与加息传导"],
+"美国·隐含年内降息次数":[40,"从利率期货价格反推，市场预计美联储到年底还会降息几次。","数字变小，说明市场认为通胀更顽固，高利率会维持更久。","货币创造与加息传导"],
+"美国·高收益债利差":[22,"信用较差的公司借钱，比美国国债多付的利率。","越低说明市场越乐观；突然快速走阔，是金融压力最早出现的信号之一。","急性与慢性危机"],
+"美国·VIX 波动率":[35,"市场预期标普 500 未来 30 天的波动幅度，俗称恐慌指数。","低于 15 偏平静，20 左右正常，高于 30 属于恐慌。","急性与慢性危机"],
+"美国·标普 500":[92,"美国 500 家大公司的股价指数。","反映美国企业盈利预期和投资者的风险偏好；分位很高说明估值已经不便宜。","宏观行为体全景"],
+"美国·费城半导体指数":[95,"在美国上市的芯片公司股价指数。","科技周期和 AI 投资热度的晴雨表，涨跌幅度通常是大盘的两倍左右。","全球产业链窄点"],
+"中国·10Y 国债收益率":[6,"中国 10 年期国债的利率。","持续走低，说明市场对增长和通胀的预期偏弱，资金更愿意买安全资产。","通胀通缩与再分配"],
+"中国·DR007 资金利率":[15,"银行间市场 7 天回购利率，是中国短期资金的价格。","央行通过它引导资金松紧；明显高于政策利率，说明市场资金偏紧。","货币创造与加息传导"],
+"中国·沪深 300":[48,"上海、深圳两市 300 家大公司的股价指数。","反映国内投资者对经济和政策的预期。","宏观稳定"],
+"中国·恒生科技指数":[55,"在香港上市的中国科技公司股价指数。","外资持有比例高，对海外情绪和中美关系最敏感。","国际经济冲突"],
+"中国·南华商品指数":[52,"国内期货市场的综合商品价格指数。","反映中国工业需求和商品价格压力，通常领先 PPI 一两个月。","全球资源分布"],
+"中美之间·美元/人民币":[64,"1 美元可以兑换多少人民币。","数字上升代表人民币贬值；受中美利差、贸易顺差和政策调控共同影响。","国际收支与商品定价权"],
+"中美之间·中美 10Y 利差":[3,"中国 10 年期国债利率减去美国 10 年期国债利率。","负得越多，持有人民币资产相对越不划算，资本外流和人民币贬值的压力越大。","国际收支与商品定价权"],
+"中美之间·美元指数":[30,"美元对欧元、日元等六种主要货币的加权汇率。","美元走强通常会收紧全球的融资环境，压制大宗商品价格和新兴市场。","国际收支与商品定价权"],
+"全球·美元/日元":[84,"1 美元可以兑换多少日元。","日元利率长期很低，常被借来投资高收益资产（套息交易）；日元突然大涨往往伴随全球资产抛售。","急性与慢性危机"],
+"全球·新兴市场货币指数":[70,"一篮子新兴市场货币对美元的汇率。","上升代表资金流入新兴市场，全球风险偏好较高。","国际收支与商品定价权"],
+"美国·ISM 制造业 PMI":[38,"每月对美国制造业采购经理的调查，50 是荣枯线。","高于 50 代表扩张、低于 50 代表收缩；其中新订单分项领先整体。","宏观稳定"],
+"美国·ISM 服务业 PMI":[45,"ISM 对服务业的同类调查。服务业占美国经济约八成。","高于 50 代表扩张；服务业比制造业更能代表美国整体经济。","宏观稳定"],
+"美国·非农新增就业":[35,"美国每月新增的非农业岗位数量。","每月 10 万到 15 万大致能吸收新增劳动力；连续几个月低于 5 万要警惕。","增长与结构"],
+"美国·失业率":[58,"找工作但没找到的人占劳动力的比例。","从近期低点上升 0.5 个百分点以上，历史上几乎都伴随衰退（萨姆规则）。","增长与结构"],
+"美国·核心 PCE":[70,"剔除食品和能源后的个人消费支出价格涨幅，是美联储最看重的通胀指标。","美联储目标是 2%；持续高于 2.5%，降息空间就有限。","通胀应对工具箱"],
+"美国·CPI":[66,"美国消费者价格指数的同比涨幅。","比 PCE 更早公布，市场反应更大；目标同样参照 2%。","通胀应对工具箱"],
+"美国·平均时薪":[55,"美国平均每小时工资的同比涨幅。","高于 3.5% 且生产率没跟上时，会推高服务业通胀。","通胀应对工具箱"],
+"美国·零售销售":[50,"美国每月零售销售额的环比变化。","反映消费是否健康；消费占美国经济约七成。","增长与结构"],
+"美国·实际 GDP":[45,"扣除通胀后的美国经济总产出增速，按季度环比折算成年率。","2% 左右是美国的潜在增速；连续两个季度为负常被称为技术性衰退。","增长与结构"],
+"中国·官方制造业 PMI":[42,"国家统计局对制造业采购经理的月度调查，50 是荣枯线。","高于 50 代表扩张；新出口订单分项能看出外需。","宏观稳定"],
+"中国·出口":[47,"中国当月出口金额的同比增速。","外需是中国增长的重要支撑；与韩国出口、全球 PMI 走势高度相关。","对外贸易结构"],
+"中国·工业增加值":[40,"规模以上工业企业产出的同比增速。","反映生产端冷暖，常与发电量、高炉开工率互相印证。","增长与结构"],
+"中国·CPI":[8,"中国消费者价格指数的同比涨幅。","长期低于 1% 属于通缩边缘，说明需求不足。","通胀通缩与再分配"],
+"中国·PPI":[12,"工业品出厂价格的同比涨幅。","长期为负，说明产能过剩、企业利润被挤压。","增长与结构"],
+"中国·M1−M2 剪刀差":[10,"M1（现金加活期存款）增速减去 M2（再加上定期存款）增速。","为负说明钱趴在定期账户里不愿花，企业和居民活力不足；回升是经济回暖的早期信号。","宏观稳定"],
+"中国·社融存量增速":[5,"全社会从金融体系借到的钱的总量增速。","明显低于名义经济增速时，说明信用在收缩。","宏观稳定"],
+"中国·70 城新房价格":[8,"70 个大中城市新建住宅价格的同比变化。","房地产是居民财富和地方财政的核心，房价止跌是关键的转折信号。","增长与结构"],
+"中国·实际 GDP":[20,"扣除通胀后的中国经济增速。","要和名义增速一起看：实际增速不低但名义增速低，说明物价在拖累收入和利润。","增长与结构"],
+"中美之间·中国对美出口":[15,"中国对美国出口金额的同比增速。","持续为负反映关税、转口和产业转移的叠加效果。","国际经济冲突"],
+"中美之间·对美出口占中国出口比重":[5,"对美出口占中国全部出口的比例。","从 2018 年约 19% 降到 12% 左右，部分是真实脱钩，部分是经第三国转口。","国际经济冲突"],
+"中美之间·美国自华进口占比":[4,"美国进口中来自中国的比例。","与上一项对照看：美国自华进口占比下降，但自越南、墨西哥进口上升。","国际经济冲突"],
+"中美之间·美国对华平均关税":[95,"美国对中国商品征收的平均关税税率。","由政策决定，不按月变化；每次调整都会影响中国出口和美国物价。","国际经济冲突"],
+"中美之间·中国持有美债":[6,"中国官方持有的美国国债规模。","持续减持反映储备多元化，是金融基础设施依赖的观察窗口。","国际经济冲突"],
+"中美之间·中国稀土出口":[30,"中国每月稀土及其制品的出口量。","窄点被用作筹码时，出口量会先变化；这是观察出口管制效果的窗口。","资源与外部冲击"],
+"全球其余·欧元区制造业 PMI":[50,"欧元区制造业采购经理调查，50 是荣枯线。","欧洲是中国最大的出口市场之一，也是能源冲击最敏感的经济体。","宏观稳定"],
+"全球其余·韩国前 20 天出口":[60,"韩国每月前 20 天的出口同比，比几乎所有国家的月度数据都早公布。","韩国出口以芯片和中间品为主，是全球贸易和科技周期最早的先行指标。","全球产业链窄点"],
+"全球其余·全球贸易量（CPB）":[45,"荷兰经济政策分析局编制的全球商品贸易实物量。","剔除价格因素，直接反映全球贸易的冷暖，但滞后约两个月。","对外贸易结构"],
+"全球其余·全球半导体销售额":[80,"全球半导体销售额的同比增速（WSTS 数据）。","科技周期的核心指标，AI 投资推动下近年波动很大。","全球产业链窄点"],
+"全球其余·粮农组织食品价格指数":[62,"联合国粮农组织编制的国际食品价格指数。","粮价上涨会先冲击进口粮食的穷国，历史上多次引发社会动荡。","资源与外部冲击"],
+"全球其余·地缘政治风险指数 GPR":[85,"根据主要报纸里战争、军事威胁、恐怖袭击等报道的频率编制的指数。","数值越高，说明地缘冲突在新闻中的分量越重；与油价、黄金相关性较高。","2026 伊朗战争"],
+"周·美国初请失业金":[45,"美国每周首次申请失业救济的人数。","最及时的就业指标；连续升到 30 万以上通常意味着裁员潮。","增长与结构"],
+"周·美联储资产负债表":[40,"美联储持有的国债和抵押贷款证券等资产总规模。","缩表就是从市场回收流动性，扩表则是释放流动性。","货币创造与加息传导"],
+"周·上海出口集装箱运价 SCFI":[70,"从上海出发的主要航线集装箱运价综合指数。","反映出口需求和航运通道状况；红海受阻时会快速跳升。","全球交通枢纽"],
+"周·芝加哥联储金融条件指数":[30,"综合利率、信用、杠杆等上百个指标的美国金融松紧度指数。","负值代表比历史平均宽松，正值代表偏紧。","急性与慢性危机"]
+};
+const bandOf=p=>p<20?"历史低位":p<40?"偏低":p<60?"中位":p<80?"偏高":"历史高位";
+const prow=p=>p==null?"":`<div class="pr"><span class="num" style="min-width:68px">十年 ${p}%</span><span class="pb"><i style="left:calc(${p}% - 1px)"></i></span><span style="min-width:52px;text-align:right">${bandOf(p)}</span></div>`;
+function openInfo(key,val,unit,cad){const I=INFO[key];if(!I)return;lastFocus=document.activeElement;const nm=key.split("·")[1];
+ document.getElementById("din").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><div style="font-size:11px;color:var(--faint);letter-spacing:.1em">${key.split("·")[0]} · <span class="cad ${cad==="日"?"cad-d":cad==="周"?"cad-w":"cad-m"}">${cad}</span></div><h2 id="dtitle" style="font-size:22px">${nm}</h2></div><button class="x" id="dx">关闭</button></div>
+ <div class="num" style="font-size:30px;font-weight:600">${val}<small style="font-size:14px;color:var(--faint)"> ${unit||""}</small></div>
+ <div><div class="pb big-pb"><i style="left:calc(${I[0]}% - 2px)"></i></div><div class="scale"><span>十年最低</span><span>中位</span><span>十年最高</span></div><p style="font-size:13px;margin:8px 0 0">当前处在过去十年的 <b class="num">${I[0]}%</b> 分位：<b>${bandOf(I[0])}</b>。</p></div>
+ <dl class="exp"><dt>这是什么</dt><dd>${I[1]}</dd><dt>怎么读</dt><dd>${I[2]}</dd><dt>资料库对应页</dt><dd>${I[3]}</dd></dl>
+ <div style="font-size:12px;color:var(--faint)">分位为示例数据。真实版按过去十年的日度或月度数据计算。</div>`;
+ const d=document.getElementById("drawer");d.hidden=false;document.getElementById("dx").focus();document.getElementById("dx").onclick=closeD;}
+function bindInfo(root){root.querySelectorAll("[data-info]").forEach(b=>b.onclick=()=>openInfo(b.dataset.info,b.dataset.val,b.dataset.unit,b.dataset.cad));}
+
+// 日频：金融市场
+const MK=[
+ ["美国","10Y 实际利率","%",1.84,.006,"up"],["美国","2Y−10Y 利差","bp",38,.03,"up"],["美国","隐含年内降息次数","次",1.6,.03,"down"],["美国","高收益债利差","bp",318,.012,"down"],["美国","VIX 波动率","",17.8,.04,"down"],["美国","标普 500","",6420,.008,"up"],["美国","费城半导体指数","",6950,.016,"up"],
+ ["中国","10Y 国债收益率","%",1.86,.008,"down"],["中国","DR007 资金利率","%",1.52,.01,"down"],["中国","沪深 300","",4180,.01,"up"],["中国","恒生科技指数","",5620,.015,"up"],["中国","南华商品指数","",2510,.008,"up"],
+ ["中美之间","美元/人民币","",7.08,.002,"down"],["中美之间","中美 10Y 利差","bp",-248,.01,"up"],["中美之间","美元指数","",98.7,.003,"down"],
+ ["全球","美元/日元","",146.3,.004,"up"],["全球","新兴市场货币指数","",1842,.003,"up"]];
+MK.forEach(m=>{m.s=series(Math.abs(m[3]),m[4],m[5]==="up"?.0004:-.0004).map(v=>m[3]<0?-v:v);m.w=(m.s.at(-1)/m.s.at(-6)-1)*100*(m[3]<0?-1:1)});
+const MKG=[["美国","全球资产定价的锚：利率、信用、风险偏好、科技股"],["中国","第二大经济体的资金面与资产价格"],["中美之间","两国相对强弱与资本流向"],["全球","其余只留两个：日元套息与新兴市场"]];
+function renderMkt(){document.getElementById("mkt").innerHTML=MKG.map(g=>`<div class="mgroup" style="margin-bottom:12px"><h3>${g[0]}<span>${g[1]}</span></h3><div class="macro">${MK.filter(m=>m[0]===g[0]).map(m=>`<button class="mtile" data-info="${m[0]}·${m[1]}" data-val="${fmt(m[3])}" data-unit="${m[2]}" data-cad="日"><span class="hint">?</span><div class="k">${m[1]}</div><div class="v num">${fmt(m[3])}${m[2]?`<small style="font-size:12px;color:var(--faint)"> ${m[2]}</small>`:""}</div><div class="d num ${cls(m.w)}">1 周 ${pct(m.w)}</div>${spark(m.s.slice(-RANGE),180,38,{col:css("--accent"),r:2})}${prow((INFO[m[0]+"·"+m[1]]||[])[0])}</button>`).join("")}</div></div>`).join("");bindInfo(document.getElementById("mkt"));}
+
+// 日频：热力表
+let FILTER="all",SORT={k:null,dir:-1};
+function heatColor(v,scale){const a=Math.min(Math.abs(v)/scale,1);const base=v>=0?css("--up"):css("--down");return `color-mix(in srgb,${base} ${Math.round(a*38)}%,transparent)`;}
+function curvePill(c){return c==="升水"?'<span class="pill p-crit">近月升水</span>':c==="贴水"?'<span class="pill p-ok">远月升水</span>':'<span class="pill p-calm">'+c+'</span>';}
+function renderHeat(){let rows=C.filter(c=>FILTER==="all"||c.g===FILTER);
+ if(SORT.k){rows=rows.slice().sort((a,b)=>{const x=a[SORT.k],y=b[SORT.k];if(SORT.k==="name"||SORT.k==="curve")return SORT.dir*String(x).localeCompare(String(y),"zh");return SORT.dir*((x??-1e9)-(y??-1e9));});}
+ const sc={d1:3,w1:6,m1:12,y1:35};
+ document.querySelector("#heat tbody").innerHTML=rows.map(c=>`<tr class="row" tabindex="0" data-id="${c.id}"><td class="name">${c.name}<small>${c.u} · ${c.g}</small></td><td class="heat">${fmt(c.end)}</td>${["d1","w1","m1","y1"].map(k=>`<td class="heat" style="background:${heatColor(c[k],sc[k])}">${pct(c[k])}</td>`).join("")}<td>${curvePill(c.curve)}</td><td class="spark">${spark(c.s.slice(-RANGE),110,24,{r:1.8})}</td></tr>`).join("");
+ document.querySelectorAll("#heat tr.row").forEach(tr=>{tr.onclick=()=>openD(tr.dataset.id);tr.onkeydown=e=>{if(e.key==="Enter")openD(tr.dataset.id)}});}
+document.querySelectorAll("#heat th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k;SORT.dir=SORT.k===k?-SORT.dir:-1;SORT.k=k;renderHeat();});
+document.querySelectorAll("#filters .chip").forEach(b=>b.onclick=()=>{FILTER=b.dataset.g;document.querySelectorAll("#filters .chip").forEach(x=>x.setAttribute("aria-pressed",x===b));renderHeat();});
+
+// 日频：地图、运价、价差
+const CK=[["霍尔木兹",565.8,123.8,-38],["曼德",533.5,158.5,-52],["苏伊士",506.2,114.5,-45],["马六甲",678.8,183,3],["巴拿马",226,167.5,-6],["好望角",471,276.5,41],["土耳其海峡",497.5,87.2,-2],["台湾海峡",724.5,128.8,1]];
+const ckCol=v=>v<=-25?css("--crit"):v<=-10?css("--warn"):v>=25?css("--accent"):css("--calm");
+function renderMap(){
+ const lanes=[[[740,112],[724,129],[700,160],[679,183],[640,176],[600,164],[560,150],[534,158],[515,135],[506,114],[480,108],[420,112],[388,100],[395,80],[410,64],[430,58]],[[600,164],[585,140],[566,124]],[[640,176],[560,240],[471,277],[430,230],[395,170],[388,100]],[[226,168],[200,140],[180,124]]];
+ document.getElementById("lanes").innerHTML=lanes.map((l,i)=>`<path d="M${l.map(p=>p.join(",")).join("L")}" fill="none" stroke="${i===2?css("--faint"):css("--accent")}" stroke-width="1.6" ${i===2?'stroke-dasharray="5 4"':""} stroke-opacity=".7"/>`).join("");
+ document.getElementById("cks").innerHTML=CK.map(c=>{const col=ckCol(c[3]);const r=6+Math.min(Math.abs(c[3]),55)/6;return `<g><circle cx="${c[1]}" cy="${c[2]}" r="${r.toFixed(1)}" fill="${col}" fill-opacity=".22"/><circle cx="${c[1]}" cy="${c[2]}" r="4.5" fill="${col}" stroke="${css("--panel")}" stroke-width="1.2"/><text x="${c[1]+9}" y="${c[2]-7}" font-size="12" font-weight="600" fill="${css("--ink")}" font-family="Noto Sans SC,sans-serif" paint-order="stroke" stroke="${css("--map-sea")}" stroke-width="3">${c[0]} ${c[3]>0?"+":""}${c[3]}%</text></g>`}).join("");
+ document.getElementById("cklist").innerHTML=CK.slice().sort((a,b)=>a[3]-b[3]).map(c=>{const col=ckCol(c[3]);const w=Math.min(Math.abs(c[3]),60)/60*50;return `<div class="ck"><span>${c[0]}</span><div class="barbg"><em></em><b style="background:${col};${c[3]<0?`right:50%;width:${w}%`:`left:50%;width:${w}%`}"></b></div><span class="num" style="text-align:right;color:${col}">${c[3]>0?"+":""}${c[3]}%</span></div>`}).join("");}
+const FR=[["波罗的海干散货 BDI","--calm",series(118,.02,.0006)],["中东—中国 VLCC 运价","--crit",series(187,.03,.0024)]];
+function renderFreight(){const n=RANGE,w=400,h=150,pad=24;const all=FR.map(f=>{const a=f[2].slice(-n);const b=a[0];return a.map(v=>v/b*100)});const mn=Math.min(...all.flat()),mx=Math.max(...all.flat());
+ let g="";[mn,100,mx].forEach(v=>{const y=pad/2+(h-pad)*(1-(v-mn)/(mx-mn));g+=`<line x1="30" x2="${w}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${css("--line")}" stroke-width=".7"/><text x="0" y="${(y+4).toFixed(1)}" font-size="10" fill="${css("--faint")}" font-family="IBM Plex Mono,monospace">${v.toFixed(0)}</text>`});
+ const paths=all.map((a,j)=>{const col=css(FR[j][1]);const pts=a.map((v,i)=>[30+i*(w-34)/(a.length-1),pad/2+(h-pad)*(1-(v-mn)/(mx-mn))]);return `<path d="M${pts.map(p=>p.map(x=>x.toFixed(1)).join(",")).join("L")}" fill="none" stroke="${col}" stroke-width="1.6"/><circle cx="${pts.at(-1)[0].toFixed(1)}" cy="${pts.at(-1)[1].toFixed(1)}" r="2.6" fill="${col}"/>`}).join("");
+ document.getElementById("freight").innerHTML=g+paths;
+ document.getElementById("flegend").innerHTML=FR.map((f,j)=>`<span style="--c:var(${f[1]})">${f[0]} <b class="num ${cls(all[j].at(-1)-100)}">${pct(all[j].at(-1)-100)}</b></span>`).join("");}
+const SP=[["布伦特 − WTI","3.70 $/桶","+0.9","走阔：大西洋两岸运费上升"],["欧洲 TTF − 美国 HH","14.1 $/MMBtu","+2.6","走阔：欧洲供应偏紧"],["亚洲 JKM − 欧洲 TTF","4.1 $/MMBtu","+1.8","走阔：卡塔尔货源绕行，亚洲抢货"],["沪铜 − 伦铜（含税）","−320 元/吨","−180","进口窗口关闭，国内需求偏弱"],["上海金溢价","+14 $/盎司","+6","国内实物需求旺盛"]];
+document.getElementById("spreads").innerHTML=SP.map(s=>`<div class="li"><span>${s[0]}<small>${s[3]}</small></span><span class="num">${s[1]}</span><span class="num ${s[2].startsWith("+")?"up":"down"}">${s[2]}</span></div>`).join("");
+
+// 周频
+function curveSvg(cv,w=90,h=26){if(!cv)return "";const mn=Math.min(...cv),mx=Math.max(...cv),r=mx-mn||1;const pts=cv.map((v,i)=>[2+i*(w-4)/(cv.length-1),3+(h-6)*(1-(v-mn)/r)]);return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path d="M${pts.map(p=>p.map(n=>n.toFixed(1)).join(",")).join("L")}" fill="none" stroke="${css("--ink")}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>${pts.map((p,i)=>i%3===0?`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="1.6" fill="${css("--ink")}"/>`:"").join("")}</svg>`;}
+function gauge(p){return p==null?'<div class="v" style="color:var(--faint)">无数据</div>':`<div class="v num">${p}% 分位</div><div class="gauge"><i style="left:calc(${p}% - 1px)"></i></div>`;}
+function renderCards(){document.getElementById("cards").innerHTML=C.filter(c=>c.key).map(c=>`<button class="card" data-id="${c.id}">
+ <div class="hd"><div><div class="nm">${c.name}</div><div class="unit">${c.u} · 价格截至上周五</div></div><span class="pill ${REGCLS[c.reg]}">${c.reg}</span></div>
+ <div style="display:flex;align-items:baseline;gap:10px"><span class="px num">${fmt(c.end)}</span><span class="chg num ${cls(c.w1)}">1周 ${pct(c.w1)}</span><span class="chg num ${cls(c.m1)}">1月 ${pct(c.m1)}</span></div>
+ ${spark(c.s.slice(-130),300,64,{cls:"main",grid:true,sw:1.6})}
+ <div class="facts"><div class="fact"><span class="k">期限结构 M1→M12</span>${curveSvg(c.cv)}</div>
+ <div class="fact"><span class="k">库存 vs 5 年同期</span>${c.inv==null?'<div class="v" style="color:var(--faint)">不适用</div>':`<div class="v num">${c.inv}% 分位</div><div class="gauge"><i style="left:calc(${c.inv}% - 1px)"></i></div>`}</div>
+ <div class="fact"><span class="k">投机净多（两年）</span>${gauge(c.cot)}</div></div>
+ <div class="read">${c.read}</div></button>`).join("");
+ document.querySelectorAll(".card").forEach(b=>b.onclick=()=>openD(b.dataset.id));}
+const COT=[["原油",62,5],["欧洲天然气",55,-3],["铜",94,3],["铝",66,1],["黄金",71,-2],["白银",79,4],["大豆",35,-6],["小麦",18,-2],["玉米",27,2]];
+document.getElementById("cot").innerHTML=COT.map(c=>`<tr><td style="text-align:left">${c[0]}</td><td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span>${c[1]}%</span><span class="gauge" style="width:80px;display:inline-block;margin:0"><i style="left:calc(${c[1]}% - 1px)"></i></span></div></td><td class="num ${cls(c[2])}">${c[2]>0?"+":""}${c[2]}</td><td>${c[1]>=85?'<span class="pill p-warn">拥挤</span>':c[1]<=15?'<span class="pill p-ok">极度看空</span>':'<span class="pill p-calm">中性</span>'}</td></tr>`).join("");
+const INV=[["EIA 美国商业原油","4.12 亿桶","−310 万",18],["EIA 汽油","2.21 亿桶","+80 万",44],["EIA 馏分油","1.15 亿桶","−140 万",12],["库欣原油","2,280 万桶","−60 万",9],["欧洲天然气库存填充率","86%","+0.6 pct",21],["LME 铜","14.6 万吨","+0.9 万",61],["上期所铜","8.2 万吨","−0.4 万",38],["中国港口铁矿石","1.52 亿吨","+600 万",83]];
+document.getElementById("inv").innerHTML=INV.map(r=>`<tr><td style="text-align:left">${r[0]}</td><td class="num">${r[1]}</td><td class="num ${r[2].startsWith("+")?"up":"down"}">${r[2]}</td><td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span class="${r[3]<=20?"up":r[3]>=80?"down":""}">${r[3]}%</span><span class="gauge" style="width:70px;display:inline-block;margin:0"><i style="left:calc(${r[3]}% - 1px)"></i></span></div></td></tr>`).join("");
+const WM=[["美国初请失业金","23.4","万人","22.1","周四发布","截至 09-27",.5],["美联储资产负债表","6.41","万亿美元","6.43","周四 H.4.1","截至 10-01",.02],["上海出口集装箱运价 SCFI","2,140","点","2,015","每周五","截至 10-03",60],["芝加哥联储金融条件指数","−0.42","","−0.45","每周三","截至 09-26",.03]];
+document.getElementById("weeklyMisc").innerHTML=WM.map(m=>{const v=parseFloat(m[1].replace("−","-").replace(/,/g,""));const pv=parseFloat(m[3].replace("−","-").replace(/,/g,""));const s=mseries(v,pv,26,m[6]);return `<button class="mt" data-info="周·${m[0]}" data-val="${m[1]}" data-unit="${m[2]}" data-cad="周"><span class="hint">?</span><div class="k">${m[0]}</div><div class="row1"><span class="v num">${m[1]}</span><span class="pv">${m[2]} · 前值 ${m[3]}</span></div>${spark(s,200,34,{col:css("--calm"),r:2})}${prow((INFO["周·"+m[0]]||[])[0])}<div class="when"><span>${m[5]}</span><span>${m[4]}</span></div></button>`}).join("");
+bindInfo(document.getElementById("weeklyMisc"));
+
+// 月频
+const MG=[
+ ["美国","增长、就业、通胀、GDP",[
+  ["ISM 制造业 PMI","49.6","","48.9","49.2","9 月","11-02",50,"bars"],["ISM 服务业 PMI","52.1","","51.4","51.8","9 月","11-04",50,"bars"],["非农新增就业","14.2","万人","9.8","11.0","9 月","11-07",0,"bars"],
+  ["失业率","4.4","%","4.3","4.3","9 月","11-07",null,"line"],["核心 PCE","2.9","% 同比","2.9","2.9","8 月","10-31",null,"line"],["CPI","3.1","% 同比","3.0","3.1","9 月","10-15",null,"line"],
+  ["平均时薪","3.8","% 同比","3.9","3.8","9 月","11-07",null,"line"],["零售销售","+0.4","% 环比","+0.2","+0.3","9 月","10-17",0,"bars"],["实际 GDP","2.1","% 环比年化","1.8","2.0","二季度","10-30",0,"bars"]]],
+ ["中国","增长、价格、信用、地产、GDP",[
+  ["官方制造业 PMI","49.8","","49.4","49.6","9 月","10-31",50,"bars"],["出口","+4.5","% 同比","+7.2","+5.0","9 月","10-13",0,"bars"],["工业增加值","+5.2","% 同比","+5.0","+5.1","9 月","10-20",0,"bars"],
+  ["CPI","0.4","% 同比","0.1","0.3","9 月","10-15",0,"bars"],["PPI","−1.6","% 同比","−2.0","−1.8","9 月","10-15",0,"bars"],["M1−M2 剪刀差","−2.1","pct","−2.5","","9 月","10-14",0,"bars"],
+  ["社融存量增速","8.2","%","8.3","","9 月","10-14",null,"line"],["70 城新房价格","−2.4","% 同比","−2.9","","9 月","10-20",0,"bars"],["实际 GDP","4.8","% 同比","5.0","4.8","二季度","10-20",null,"line"]]],
+ ["中美之间","贸易、技术与资本的相互依赖",[
+  ["中国对美出口","−8.2","% 同比","−11.5","","9 月","10-13",0,"bars"],["对美出口占中国出口比重","12.6","%","12.9","","9 月","10-13",null,"line"],["美国自华进口占比","11.9","%","12.1","","8 月","11-05",null,"line"],
+  ["美国对华平均关税","38","%","38","","10 月","事件驱动",null,"line"],["中国持有美债","7,350","亿美元","7,420","","7 月","10-17",null,"line"],["中国稀土出口","4,860","吨","5,120","","9 月","10-20",0,"bars"]]],
+ ["全球其余","只保留能反映全球周期的几项",[
+  ["欧元区制造业 PMI","50.3","","49.9","50.0","9 月","11-03",50,"bars"],["韩国前 20 天出口","+6.8","% 同比","+3.1","","9 月","10-21",0,"bars"],["全球贸易量（CPB）","+2.1","% 同比","+1.6","","7 月","10-24",0,"bars"],
+  ["全球半导体销售额","+18","% 同比","+21","","8 月","11-03",0,"bars"],["粮农组织食品价格指数","128.4","","126.9","","9 月","11-07",null,"line"],["地缘政治风险指数 GPR","142","","128","","9 月","11-05",null,"line"]]]];
+function surp(v,c){if(c==="")return "";const x=parseFloat(v.replace("−","-").replace(/,/g,"")),y=parseFloat(c.replace("−","-").replace(/,/g,""));const d=x-y;if(Math.abs(d)<1e-9)return `<span class="surp" style="color:var(--faint)">符合预期</span>`;return `<span class="surp ${d>0?"up":"down"}">${d>0?"高于":"低于"}预期 ${c}</span>`;}
+function renderMonthly(){document.getElementById("monthly").innerHTML=MG.map(g=>`<section class="panel mgroup"><h3>${g[0]}<span>${g[1]}</span></h3><div class="mtiles">${g[2].map(t=>{const v=parseFloat(t[1].replace("−","-").replace(/,/g,"")),pv=parseFloat(t[3].replace("−","-").replace(/,/g,""));const s=mseries(v,pv,24,Math.max(Math.abs(v-pv),Math.abs(v)*.04,.2));const key=g[0]+"·"+t[0];return `<button class="mt" data-info="${key}" data-val="${t[1]}" data-unit="${t[2]}" data-cad="月"><span class="hint">?</span><div class="k">${t[0]}</div><div class="row1"><span class="v num">${t[1]}</span><span class="pv">${t[2]?t[2]+" · ":""}前值 ${t[3]}</span></div>${surp(t[1],t[4])}${t[8]==="bars"?bars(s,200,34,t[7]):spark(s,200,34,{col:css("--ok"),r:2})}${prow((INFO[key]||[])[0])}<div class="when"><span>数据：${t[5]}</span><span>下次 ${t[6]}</span></div></button>`}).join("")}</div></section>`).join("");bindInfo(document.getElementById("monthly"));}
+
+// 新闻
+const NEWS=[
+ ["10-06 06:40","地缘","伊朗称将在霍尔木兹海峡实施「临时检查」，两艘油轮改道","海峡通行量连续第五天低于均值；保险商上调战争险费率。",["原油","TTF","JKM","VLCC 运价"],["2026 伊朗战争","全球交通枢纽"]],
+ ["10-05 21:15","央行","美联储官员：通胀回落进程放缓，年内降息空间有限","市场隐含年内降息次数从 2.1 次降至 1.6 次，2 年期美债收益率上行 9 个基点。",["隐含降息次数","2Y−10Y 利差","美元指数"],["货币创造与加息传导"]],
+ ["10-05 14:30","贸易","中美贸易休战到期前首轮磋商结束，未就稀土出口许可延期达成一致","10 月出口管制措施的暂停期将于 11 月到期；稀土相关企业股价波动。",["稀土","费城半导体指数"],["国际经济冲突","资源与外部冲击"]],
+ ["10-04 09:00","产业","智利最大铜矿罢工进入第二周","约占全球铜供应 2%；LME 铜价创新高，但交易所库存未降。",["铜","CFTC 铜持仓"],["全球产业链窄点"]],
+ ["10-03 18:20","央行","中国人民银行下调存款准备金率 0.25 个百分点","释放长期流动性约 5000 亿元；配合地方专项债加快发行。",["M1−M2 剪刀差","沪深 300","美元/人民币"],["宏观稳定"]],
+ ["10-02 11:05","产业","OPEC+ 宣布 11 月小幅增产，低于市场预期","实际增量主要来自沙特与阿联酋，但两国出口受海峡局势限制。",["原油","布伦特近远月价差"],["全球资源分布"]],
+ ["10-01 16:45","贸易","欧盟对进口电动车反补贴税复审启动","涉及中国车企与部分欧洲品牌在华工厂；锂价反应平淡。",["碳酸锂","中国出口"],["增长与结构"]]];
+let NC="all";
+function renderNews(){document.getElementById("news").innerHTML=NEWS.filter(n=>NC==="all"||n[1]===NC).map(n=>`<article class="nw"><time>${n[0]}</time><div><h3>${n[2]}</h3><p>${n[3]}</p><div class="tags"><span class="tag">${n[1]}</span>${n[4].map(t=>`<span class="tag imp">影响 · ${t}</span>`).join("")}${n[5].map(t=>`<span class="tag lib">资料库 · ${t}</span>`).join("")}</div></div></article>`).join("");}
+document.querySelectorAll("#nfilter .chip").forEach(b=>b.onclick=()=>{NC=b.dataset.c;document.querySelectorAll("#nfilter .chip").forEach(x=>x.setAttribute("aria-pressed",x===b));renderNews();});
+
+// 日程与日志
+const CAL=[["10-08 周三","EIA 原油库存周报","周频"],["10-09 周四","美国初请失业金、美联储资产负债表","周频"],["10-10 周五","CFTC 持仓报告；SCFI 运价","周频"],["10-13 周一","中国 9 月进出口","月频"],["10-14 周二","中国 9 月金融数据（社融、M1、M2、贷款）","月频"],["10-15 周三","美国 9 月 CPI；中国 9 月 CPI、PPI","月频"],["10-16 周四","IEA 月度石油市场报告","新闻"],["10-20 周一","中国三季度 GDP、70 城房价、商品房销售","月频"],["10-21 周二","韩国 10 月前 20 天出口","月频"]];
+const CADP={"周频":"cad-w","月频":"cad-m","新闻":"cad-n","日频":"cad-d"};
+document.getElementById("cal").innerHTML=CAL.map(c=>`<div class="li"><span class="num" style="color:var(--muted);font-size:12px">${c[0]}</span><span>${c[1]}</span><span class="cad ${CADP[c[2]]}">${c[2]}</span></div>`).join("");
+const LOG=[["2026-09-05","周频","原油","库存连降 + 近月升水走阔","真实紧缺","+9.4%","命中"],["2026-09-02","月频","中国 PMI","新订单分项连续两月回升","增长企稳","+1.2pt","命中"],["2026-08-22","周频","铜","投机净多 > 90% 分位","资金推动，回撤风险","−3.1%","命中"],["2026-08-14","日频","TTF","霍尔木兹通行量 −30%","物流冲击","+18.6%","命中"],["2026-07-30","日频","碳酸锂","价格急涨但期限结构平坦","资金推动","+0.8%","不明确"],["2026-07-11","周频","铁矿石","港口连续累库","需求走弱","+2.2%","未命中"],["2026-06-27","日频","黄金","实际利率走高、金价不跌","官方买盘主导","+4.7%","命中"]];
+document.getElementById("log").innerHTML=LOG.map(l=>`<tr><td class="num" style="text-align:left">${l[0]}</td><td><span class="cad ${CADP[l[1]]}">${l[1]}</span></td><td>${l[2]}</td><td>${l[3]}</td><td>${l[4]}</td><td class="num ${l[5].startsWith("+")?"up":"down"}">${l[5]}</td><td><span class="pill ${l[6]==="命中"?"p-ok":l[6]==="未命中"?"p-crit":"p-calm"}">${l[6]}</span></td></tr>`).join("")+`<tr><td colspan="7" style="color:var(--faint);font-size:12px">近 6 个月 21 次触发：命中 14，未命中 4，不明确 3。命中率最低的是「需求走弱」规则，下一版加入钢厂开工率作为确认条件。</td></tr>`;
+
+// 详情抽屉
+let lastFocus=null;
+function openD(id){const c=C.find(x=>x.id===id);if(!c)return;lastFocus=document.activeElement;const d=document.getElementById("drawer");
+ const s=c.s.slice(-RANGE);const mx=Math.max(...s),mn=Math.min(...s);
+ document.getElementById("din").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><div style="font-size:11px;color:var(--faint);letter-spacing:.1em">${c.g} · ${c.u}</div><h2 id="dtitle" style="font-size:22px">${c.name}</h2></div><button class="x" id="dx">关闭</button></div>
+ <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:baseline"><span class="num" style="font-size:30px;font-weight:600">${fmt(c.end)}</span>${["d1","w1","m1","y1"].map((k,i)=>`<span class="num ${cls(c[k])}">${["1日","1周","1月","1年"][i]} ${pct(c[k])}</span>`).join("")}${c.reg?`<span class="pill ${REGCLS[c.reg]}">${c.reg}</span>`:""}</div>
+ ${spark(s,600,260,{cls:"big",grid:true,sw:1.8,r:3.2})}
+ <div class="dgrid"><div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-d">日</span> 区间高 / 低</div><div class="num" style="font-weight:600">${fmt(mx)} / ${fmt(mn)}</div></div>
+ <div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-d">日</span> 期限结构</div><div style="font-weight:600">${c.curve==="升水"?"近月升水：现货偏紧":c.curve==="贴水"?"远月升水：供应宽松":c.curve}</div></div>
+ <div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-w">周</span> 投机净多两年分位</div>${gauge(c.cot)}</div>
+ <div class="panel"><div style="font-size:12px;color:var(--faint)"><span class="cad cad-w">周</span> 库存 vs 5 年同期</div><div class="num" style="font-weight:600">${c.inv==null?"—":c.inv+"% 分位"}</div></div></div>
+ ${c.read?`<div class="panel" style="font-size:13.5px">${c.read}</div>`:'<div style="color:var(--faint);font-size:13px">非重点品种，只展示价格与持仓。</div>'}
+ <div style="font-size:12px;color:var(--faint)">相关新闻：${NEWS.filter(n=>n[4].some(t=>c.name.includes(t)||t.includes(c.name.slice(0,2)))).map(n=>n[2]).join("；")||"暂无"}</div>
+ <div style="font-size:12px;color:var(--faint)">示例数据。真实版此处还会展示：近 12 个合约的期限结构曲线、库存季节性对比图、CFTC 持仓历史。</div>`;
+ d.hidden=false;document.getElementById("dx").focus();document.getElementById("dx").onclick=closeD;}
+function closeD(){document.getElementById("drawer").hidden=true;if(lastFocus)lastFocus.focus();}
+document.getElementById("drawer").addEventListener("click",e=>{if(e.target.id==="drawer")closeD()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!document.getElementById("drawer").hidden)closeD()});
+
+
+// 经济周期四象限
+const QP={us:[[.55,.95],[.5,.9],[.42,.86],[.35,.8],[.3,.74],[.22,.7],[.15,.64],[.08,.6],[0,.56],[-.05,.52],[-.1,.5],[-.12,.47],[-.15,.45]],
+          cn:[[-.95,-.9],[-.92,-.88],[-.86,-.85],[-.8,-.82],[-.72,-.8],[-.66,-.78],[-.58,-.74],[-.52,-.72],[-.46,-.69],[-.4,-.66],[-.36,-.64],[-.32,-.62],[-.3,-.6]]};
+function renderQuad(){const W=520,H=440,cx=W/2,cy=H/2,R=190;const X=v=>cx+v*R,Y=v=>cy-v*R;
+ const qbg=[["过热","增长强 · 通胀高",css("--up-soft"),X(.5),Y(.5)],["滞胀","增长弱 · 通胀高",css("--warn-soft"),X(-.5),Y(.5)],["衰退 / 通缩","增长弱 · 通胀低",css("--calm-soft"),X(-.5),Y(-.5)],["复苏","增长强 · 通胀低",css("--down-soft"),X(.5),Y(-.5)]];
+ let g=`<rect x="${cx}" y="${cy-R}" width="${R}" height="${R}" fill="${qbg[0][2]}"/><rect x="${cx-R}" y="${cy-R}" width="${R}" height="${R}" fill="${qbg[1][2]}"/><rect x="${cx-R}" y="${cy}" width="${R}" height="${R}" fill="${qbg[2][2]}"/><rect x="${cx}" y="${cy}" width="${R}" height="${R}" fill="${qbg[3][2]}"/>`;
+ g+=`<line x1="${cx-R}" x2="${cx+R}" y1="${cy}" y2="${cy}" stroke="${css("--faint")}" stroke-width="1"/><line x1="${cx}" x2="${cx}" y1="${cy-R}" y2="${cy+R}" stroke="${css("--faint")}" stroke-width="1"/>`;
+ const corners=[[X(.96),Y(.9),"end"],[X(-.96),Y(.9),"start"],[X(-.96),Y(-.8),"start"],[X(.96),Y(-.8),"end"]];
+ qbg.forEach((q,i)=>{const [x,y,an]=corners[i];g+=`<text x="${x}" y="${y}" text-anchor="${an}" font-size="15" font-weight="700" fill="${css("--ink")}" fill-opacity=".55" font-family="Noto Sans SC,sans-serif">${q[0]}</text><text x="${x}" y="${y+17}" text-anchor="${an}" font-size="11" fill="${css("--muted")}" font-family="Noto Sans SC,sans-serif">${q[1]}</text>`});
+ g+=`<text x="${cx+R}" y="${cy+R+22}" text-anchor="end" font-size="11.5" fill="${css("--muted")}" font-family="Noto Sans SC,sans-serif">增长更强 →</text><text x="${cx-R}" y="${cy+R+22}" font-size="11.5" fill="${css("--muted")}" font-family="Noto Sans SC,sans-serif">← 增长更弱</text><text x="${cx+6}" y="${cy-R-8}" font-size="11.5" fill="${css("--muted")}" font-family="Noto Sans SC,sans-serif">↑ 通胀更高</text>`;
+ [["us","美国","--accent"],["cn","中国","--calm"]].forEach(([k,n,c])=>{const col=css(c);const p=QP[k];g+=`<path d="M${p.map(q=>X(q[0]).toFixed(1)+","+Y(q[1]).toFixed(1)).join("L")}" fill="none" stroke="${col}" stroke-width="2" stroke-dasharray="1 0" stroke-opacity=".8"/>`;p.forEach((q,i)=>{if(i<p.length-1)g+=`<circle cx="${X(q[0]).toFixed(1)}" cy="${Y(q[1]).toFixed(1)}" r="2.2" fill="${col}" fill-opacity="${.25+.6*i/p.length}"/>`});const e=p.at(-1),s0=p[0];g+=`<circle cx="${X(s0[0]).toFixed(1)}" cy="${Y(s0[1]).toFixed(1)}" r="4" fill="none" stroke="${col}" stroke-width="1.5"/><text x="${(X(s0[0])+8).toFixed(1)}" y="${(Y(s0[1])+4).toFixed(1)}" font-size="11" fill="${css("--muted")}" font-family="Noto Sans SC,sans-serif">一年前</text><circle cx="${X(e[0]).toFixed(1)}" cy="${Y(e[1]).toFixed(1)}" r="8" fill="${col}" stroke="${css("--panel")}" stroke-width="2"/><text x="${(X(e[0])+12).toFixed(1)}" y="${(Y(e[1])+5).toFixed(1)}" font-size="14" font-weight="700" fill="${col}" font-family="Noto Sans SC,sans-serif" paint-order="stroke" stroke="${css("--panel")}" stroke-width="3">${n} · 现在</text>`});
+ document.getElementById("quad").innerHTML=g;
+ document.getElementById("qlist").innerHTML=`
+ <div class="qc"><h3><span class="pill p-acc">美国</span>从过热滑向滞胀边缘</h3><p>一年前增长强、通胀高；现在 PMI 跌破 50、失业率升到 4.4%，增长转弱，但核心通胀仍在 2.9%，没回到 2% 的目标。这一格最难办：降息怕通胀反弹，不降又怕衰退。</p></div>
+ <div class="qc"><h3><span class="pill p-calm">中国</span>仍在通缩一格，但在缓慢改善</h3><p>CPI 接近 0、PPI 为负，通胀明显低于目标；增长略弱于潜在水平。过去一年两个维度都在往右上挪：PMI 回到 49.8，PPI 降幅从 −2.8% 收窄到 −1.6%。</p></div>
+ <div class="qc"><h3>四格各意味着什么</h3><p><b>复苏</b>：增长回升、通胀仍低，央行通常维持宽松。<b>过热</b>：增长和通胀都高，央行加息降温。<b>滞胀</b>：增长转弱而通胀不降，政策两难。<b>衰退 / 通缩</b>：增长弱、物价低，央行降息、财政加码。见资料库「通胀应对工具箱」「通胀通缩与再分配」。</p></div>
+ <div class="qc"><h3>坐标怎么算</h3><p>横轴：PMI、就业、工业生产相对各自十年均值的标准化得分，取平均。纵轴：核心通胀相对央行目标的偏离（美国对 2%，中国对 3%），同样标准化。每月数据公布后更新一个点。示例数据。</p></div>`;}
+// 标签页
+const PANES=["daily","weekly","monthly","news","cal"];
+function show(p){if(!PANES.includes(p))p="daily";PANES.forEach(x=>{document.getElementById("p-"+x).hidden=x!==p;document.getElementById("t-"+x).setAttribute("aria-selected",x===p)});try{localStorage.setItem("wem-tab",p)}catch(e){}}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{show(t.dataset.p);history.replaceState(null,"","#"+t.dataset.p)});
+let start=(location.hash||"").slice(1);if(!PANES.includes(start)){try{start=localStorage.getItem("wem-tab")||"daily"}catch(e){start="daily"}}
+
+function renderAll(){renderQuad();renderMkt();renderHeat();renderMap();renderFreight();renderCards();renderMonthly();renderNews();}
+document.querySelectorAll(".seg button").forEach(b=>{b.setAttribute("aria-pressed",+b.dataset.r===RANGE);b.onclick=()=>{RANGE=+b.dataset.r;try{localStorage.setItem("wem-range",RANGE)}catch(e){}document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderMkt();renderHeat();renderFreight();}});
+renderAll();show(start);
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",renderAll);
+new MutationObserver(renderAll).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+})();
+</script>
